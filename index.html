@@ -7,806 +7,651 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#060b18">
 <title>SoilTest Field Control</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #060b18;
-  --card: rgba(15,23,42,0.65);
-  --border: rgba(51,65,85,0.35);
-  --amber: #f59e0b;
-  --green: #22c55e;
-  --red: #ef4444;
-  --blue: #3b82f6;
-  --text: #e2e8f0;
-  --muted: #64748b;
-  --dim: #334155;
-  --font: 'Barlow Condensed', 'Segoe UI', sans-serif;
-  --mono: 'Share Tech Mono', 'Courier New', monospace;
-}
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-body { background:var(--bg); color:var(--text); font-family:var(--font); min-height:100vh; overflow-x:hidden; }
-body::before { content:''; position:fixed; top:0; left:0; right:0; height:40vh; background:radial-gradient(ellipse at 50% 0%, rgba(30,58,138,0.08) 0%, transparent 70%); pointer-events:none; z-index:0; }
-input, select, button { font-family:var(--font); }
-input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(0.7); }
-.no-sb::-webkit-scrollbar { display:none; }
-.no-sb { -ms-overflow-style:none; scrollbar-width:none; }
+:root{--bg:#060b18;--card:#0d1a2d;--border:#1e3350;--amber:#FFB020;--green:#00DD66;--red:#FF4444;--blue:#4499FF;--white:#F0F4FF;--muted:#8899AA;--dim:#556677;--font:'Barlow Condensed',sans-serif;--mono:'Courier New',Courier,monospace}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--white);font-family:var(--font);font-size:16px;min-height:100vh;overflow-x:hidden}
+input,select,button,textarea{font-family:var(--font);font-size:17px}
+input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.85)}
+::-webkit-scrollbar{display:none}
 
-/* Header */
-.hdr { position:sticky; top:0; z-index:50; background:rgba(6,11,24,0.95); backdrop-filter:blur(12px); border-bottom:1px solid rgba(51,65,85,0.3); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; }
-.hdr-left .pre { font-size:9px; letter-spacing:3px; color:#475569; text-transform:uppercase; }
-.hdr-left .title { font-family:var(--mono); font-size:20px; font-weight:800; color:var(--amber); letter-spacing:1px; }
-.hdr-right { text-align:right; }
-.hdr-date { font-size:10px; color:#475569; }
-.hdr-countdown { font-family:var(--mono); font-size:13px; font-weight:700; color:var(--amber); }
-.hdr-countdown.urgent { color:var(--red); animation:pulse 2s infinite; }
-.hdr-user { display:flex; align-items:center; gap:6px; margin-left:10px; }
-.hdr-user-btn { width:36px; height:36px; border-radius:10px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-.hdr-user-btn:active { background:rgba(51,65,85,0.3); }
+.hdr{position:sticky;top:0;z-index:90;background:rgba(6,11,24,0.97);backdrop-filter:blur(10px);border-bottom:2px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.hdr h1{font-size:22px;font-weight:900;color:var(--amber);font-family:var(--mono);letter-spacing:1px}
+.hdr-sub{font-size:13px;letter-spacing:3px;color:var(--dim);font-weight:700}
+.hdr-right{text-align:right}
+.hdr-date{font-size:15px;color:var(--muted);font-weight:700}
+.hdr-days{font-size:17px;font-weight:900;font-family:var(--mono)}
+.hdr-days.urgent{color:var(--red);animation:pulse 2s infinite}
+.gear{width:44px;height:44px;border-radius:12px;border:2px solid var(--border);background:transparent;color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-left:10px;flex-shrink:0}
+.gear:active{background:var(--card)}
 
-@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
-@keyframes slideUp { from{transform:translateY(16px);opacity:0;} to{transform:translateY(0);opacity:1;} }
-.slide-up { animation:slideUp 0.25s ease-out; }
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes slideUp{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
+.anim{animation:slideUp .25s ease-out}
 
-/* Content */
-.content { padding:12px 16px 90px; position:relative; z-index:1; }
+.content{padding:14px 16px 110px}
+.gap{display:flex;flex-direction:column;gap:14px}
 
-/* Alerts */
-.alert { border-radius:10px; padding:12px 14px; display:flex; align-items:flex-start; gap:10px; margin-bottom:8px; }
-.alert.danger { background:rgba(127,29,29,0.45); border-left:4px solid var(--red); }
-.alert.warning { background:rgba(113,63,18,0.35); border-left:4px solid var(--amber); }
-.alert.info { background:rgba(30,58,138,0.25); border-left:4px solid var(--blue); }
-.alert-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
-.alert-title { font-weight:700; font-size:13px; }
-.alert.danger .alert-title { color:#fca5a5; }
-.alert.warning .alert-title { color:#fde047; }
-.alert-msg { font-size:11px; color:#cbd5e1; margin-top:2px; line-height:1.5; }
+/* Alert */
+.alert{border-radius:14px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.alert.danger{background:#3D1111;border-left:5px solid var(--red)}
+.alert.warning{background:#3D2E0A;border-left:5px solid var(--amber)}
+.alert-icon{font-size:22px;flex-shrink:0}
+.alert-title{font-size:17px;font-weight:800}
+.alert.danger .alert-title{color:#FF7777}
+.alert.warning .alert-title{color:#FFD060}
+.alert-msg{font-size:15px;color:#CCDDEE;margin-top:3px;line-height:1.5;font-weight:600}
 
 /* Cards */
-.card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px; backdrop-filter:blur(8px); }
-.card-label { font-size:9px; letter-spacing:1.5px; color:#475569; text-transform:uppercase; display:flex; align-items:center; gap:5px; margin-bottom:4px; }
-.card-value { font-family:var(--mono); font-size:18px; font-weight:800; }
-.card-sub { font-size:10px; color:#475569; margin-top:3px; }
-
-.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
-.gap { display:flex; flex-direction:column; gap:14px; }
+.card{background:var(--card);border:2px solid var(--border);border-radius:16px;padding:16px}
+.card-label{font-size:14px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:5px}
+.card-value{font-family:var(--mono);font-size:22px;font-weight:900}
+.card-sub{font-size:14px;color:var(--dim);margin-top:4px;font-weight:700}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 
 /* Gauge */
-.gauge { display:flex; flex-direction:column; align-items:center; padding:8px 0; }
-.gauge-label { font-size:10px; letter-spacing:1.5px; color:#475569; text-transform:uppercase; margin-top:-2px; }
-.gauge-value { font-family:var(--mono); font-size:24px; font-weight:800; }
+.gauge{display:flex;flex-direction:column;align-items:center;padding:10px 0}
+.gauge-lbl{font-size:15px;color:var(--muted);font-weight:700;letter-spacing:2px}
+.gauge-val{font-family:var(--mono);font-size:28px;font-weight:900}
 
-/* Progress Bars */
-.bar-wrap { margin-bottom:10px; }
-.bar-head { display:flex; justify-content:space-between; font-size:11px; color:#475569; margin-bottom:4px; }
-.bar-track { height:8px; background:#0f172a; border-radius:99px; overflow:hidden; }
-.bar-fill { height:100%; border-radius:99px; transition:width 0.8s ease; }
+/* Bar */
+.bar{margin-bottom:14px}
+.bar-head{display:flex;justify-content:space-between;font-size:16px;font-weight:700;color:#BBCCDD;margin-bottom:6px}
+.bar-track{height:12px;background:#0a1120;border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;transition:width .8s}
+
+/* Section label */
+.sec{font-size:15px;font-weight:800;color:var(--muted);letter-spacing:2px;margin-bottom:12px}
 
 /* Buttons */
-.btn { width:100%; padding:16px; border-radius:14px; border:none; color:#fff; font-weight:700; font-size:15px; letter-spacing:0.5px; cursor:pointer; transition:all 0.15s; }
-.btn:active { transform:scale(0.98); }
-.btn-amber { background:#d97706; }
-.btn-amber:active { background:#b45309; }
-.btn-blue { background:#2563eb; }
-.btn-blue:active { background:#1d4ed8; }
-.btn-green { background:#16a34a; }
-.btn-green:active { background:#15803d; }
-.btn-red { background:#dc2626; }
-.btn-outline { background:transparent; border:1px solid var(--border); color:var(--muted); }
-.btn:disabled { opacity:0.4; pointer-events:none; }
+.btn{width:100%;padding:18px;border-radius:16px;border:none;font-size:18px;font-weight:800;cursor:pointer;color:#fff;letter-spacing:.5px;font-family:var(--font)}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.35;pointer-events:none}
+.btn-amber{background:#D97706}
+.btn-blue{background:#2563eb}
+.btn-green{background:#16a34a}
+.btn-red{background:#dc2626}
+.btn-outline{background:transparent;border:2px solid var(--border);color:var(--muted)}
 
 /* Chips */
-.chips { display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; }
-.chip { padding:8px 14px; border-radius:10px; font-size:12px; font-weight:600; white-space:nowrap; cursor:pointer; border:1px solid var(--border); color:#64748b; background:transparent; flex-shrink:0; }
-.chip.active { background:#d97706; color:#fff; border-color:#d97706; }
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.chip{padding:10px 16px;border-radius:12px;font-size:15px;font-weight:700;white-space:nowrap;cursor:pointer;flex-shrink:0;border:2px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font)}
+.chip.on{background:#D97706;color:#fff;border-color:#D97706}
 
-/* Task Card */
-.task-card { border-radius:14px; padding:14px; border:1px solid var(--border); background:var(--card); display:flex; align-items:flex-start; gap:12px; }
-.task-card.overdue { border-color:rgba(220,38,38,0.4); background:rgba(127,29,29,0.12); }
-.status-btn { width:44px; height:44px; border-radius:50%; border:none; color:#fff; font-weight:800; font-size:18px; cursor:pointer; flex-shrink:0; transition:transform 0.15s; display:flex; align-items:center; justify-content:center; }
-.status-btn:active { transform:scale(0.88); }
-.status-btn.done { background:#16a34a; box-shadow:0 0 0 3px rgba(22,163,74,0.2); }
-.status-btn.progress { background:#d97706; box-shadow:0 0 0 3px rgba(217,119,6,0.2); }
-.status-btn.pending { background:#475569; box-shadow:0 0 0 3px rgba(71,85,105,0.2); }
-.task-name { font-size:14px; font-weight:600; line-height:1.3; }
-.task-name.completed { text-decoration:line-through; color:#475569; }
-.task-tags { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; }
-.tag { font-size:10px; padding:2px 8px; border-radius:6px; border:1px solid rgba(51,65,85,0.4); color:#64748b; }
-.tag.od { border-color:rgba(220,38,38,0.4); color:#f87171; }
-.task-note { font-size:11px; color:#475569; font-style:italic; margin-top:4px; }
-.task-body { flex:1; min-width:0; }
-.del-btn { background:none; border:none; color:#1e293b; font-size:14px; cursor:pointer; padding:4px; flex-shrink:0; }
-.del-btn:active { color:var(--red); }
-
-/* Chart bars */
-.chart-bars { display:flex; align-items:flex-end; gap:2px; height:150px; }
-.chart-col { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
-.chart-val { font-size:7px; font-family:var(--mono); color:#475569; margin-bottom:2px; }
-.chart-bar { width:100%; border-radius:2px 2px 0 0; transition:height 0.6s ease; min-height:2px; }
-.chart-bar.over { background:var(--red); }
-.chart-bar.today { background:var(--amber); }
-.chart-bar.normal { background:var(--blue); }
-.chart-bar.empty { background:rgba(15,23,42,0.5); }
-.chart-date { font-size:6px; color:#334155; margin-top:3px; text-align:center; }
-.chart-date.today { color:var(--amber); font-weight:700; }
-.chart-legend { display:flex; gap:12px; font-size:10px; color:#475569; margin-top:10px; padding-top:8px; border-top:1px solid rgba(51,65,85,0.2); align-items:center; }
-.legend-dot { width:10px; height:6px; border-radius:2px; display:inline-block; margin-right:3px; }
+/* Task */
+.task{border-radius:16px;padding:14px;border:2px solid var(--border);background:var(--card);display:flex;align-items:flex-start;gap:14px}
+.task.od{border-color:rgba(255,68,68,.45);background:rgba(61,17,17,.35)}
+.sbtn{width:52px;height:52px;border-radius:50%;border:none;color:#fff;font-size:24px;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.sbtn:active{transform:scale(.88)}
+.sbtn.done{background:#16a34a;box-shadow:0 0 0 4px rgba(22,163,74,.25)}
+.sbtn.prog{background:#D97706;box-shadow:0 0 0 4px rgba(217,119,6,.25)}
+.sbtn.pend{background:#475569;box-shadow:0 0 0 4px rgba(71,85,105,.25)}
+.task-name{font-size:17px;font-weight:700;line-height:1.35}
+.task-name.fin{text-decoration:line-through;color:var(--dim)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tag{font-size:14px;padding:4px 10px;border-radius:8px;border:2px solid var(--border);color:var(--muted);font-weight:700}
+.tag.od{border-color:rgba(255,68,68,.4);color:#FF7777}
+.task-note{font-size:15px;color:var(--dim);font-style:italic;margin-top:6px;font-weight:600}
+.del{background:none;border:none;color:#2a3a50;font-size:20px;cursor:pointer;padding:6px;flex-shrink:0}
+.del:active{color:var(--red)}
 
 /* Log */
-.log-item { border-radius:10px; padding:12px; border:1px solid var(--border); background:var(--card); display:flex; align-items:center; gap:10px; }
-.log-body { flex:1; min-width:0; }
-.log-title { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.log-sub { font-size:10px; color:#475569; }
-.log-amount { font-family:var(--mono); font-size:14px; font-weight:700; color:var(--amber); white-space:nowrap; }
+.log{border-radius:14px;padding:14px;border:2px solid var(--border);background:var(--card);display:flex;align-items:center;gap:12px}
+.log-title{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.log-sub{font-size:14px;color:var(--dim);font-weight:600}
+.log-amt{font-family:var(--mono);font-size:17px;font-weight:900;color:var(--amber);white-space:nowrap}
+
+/* Nav */
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:90;background:rgba(6,11,24,.97);backdrop-filter:blur(10px);border-top:2px solid var(--border);display:flex;justify-content:space-around;padding:6px 4px 12px}
+.nav-btn{display:flex;flex-direction:column;align-items:center;padding:8px 10px;border-radius:14px;cursor:pointer;border:none;background:transparent;color:var(--dim);font-family:var(--font);position:relative}
+.nav-btn.on{color:var(--amber);background:rgba(255,176,32,.08)}
+.nav-btn:active{transform:scale(.95)}
+.nav-icon{font-size:24px}
+.nav-lbl{font-size:12px;font-weight:800;letter-spacing:.5px;margin-top:2px}
+.nav-badge{position:absolute;top:-2px;right:0;min-width:20px;height:20px;border-radius:50%;background:var(--red);color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center}
 
 /* Modal */
-.overlay { position:fixed; inset:0; z-index:100; display:flex; align-items:flex-end; justify-content:center; }
-.overlay-bg { position:absolute; inset:0; background:rgba(0,0,0,0.7); }
-.modal { position:relative; width:100%; max-width:480px; max-height:88vh; overflow-y:auto; background:#0c1120; border-radius:20px 20px 0 0; border:1px solid var(--border); border-bottom:none; }
-.modal-hdr { position:sticky; top:0; display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid rgba(51,65,85,0.2); background:#0c1120; z-index:1; }
-.modal-title { font-size:16px; font-weight:700; letter-spacing:0.5px; }
-.modal-close { width:36px; height:36px; border-radius:50%; border:none; background:transparent; color:#64748b; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-.modal-close:active { background:rgba(51,65,85,0.3); }
-.modal-body { padding:20px; display:flex; flex-direction:column; gap:14px; }
+.ov{position:fixed;inset:0;z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.ov-bg{position:absolute;inset:0;background:rgba(0,0,0,.75)}
+.modal{position:relative;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;background:#0a1120;border-radius:24px 24px 0 0;border:2px solid var(--border);border-bottom:none}
+.modal-hdr{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:2px solid var(--border);background:#0a1120}
+.modal-title{font-size:20px;font-weight:900}
+.modal-x{width:44px;height:44px;border-radius:50%;border:none;background:var(--border);color:var(--muted);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-body{padding:20px;display:flex;flex-direction:column;gap:16px}
+.field label{display:block;font-size:14px;font-weight:800;color:var(--muted);margin-bottom:6px;letter-spacing:1px}
+.field input,.field select{width:100%;border-radius:12px;padding:14px;font-size:17px;font-weight:700;border:2px solid var(--border);background:#0d1525;color:var(--white);outline:none;font-family:var(--font)}
+.field input:focus,.field select:focus{border-color:var(--amber)}
+.field input:disabled{opacity:.5}
+.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238899AA' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px}
+.total-box{border-radius:16px;padding:16px;text-align:center;border:2px solid rgba(217,119,6,.2);background:rgba(217,119,6,.04)}
+.total-lbl{font-size:14px;font-weight:700;color:var(--muted);letter-spacing:2px}
+.total-val{font-family:var(--mono);font-size:30px;font-weight:900;color:var(--amber)}
 
-/* Form */
-.field label { font-size:10px; letter-spacing:1px; color:#475569; text-transform:uppercase; display:block; margin-bottom:4px; }
-.field input, .field select { width:100%; border-radius:10px; padding:12px; font-size:15px; border:1px solid var(--dim); background:rgba(15,23,42,0.8); color:var(--text); outline:none; transition:border 0.2s; }
-.field input:focus, .field select:focus { border-color:var(--amber); }
-.field input:disabled { opacity:0.5; }
-.field select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; }
-.total-preview { border-radius:14px; padding:14px; text-align:center; border:1px solid rgba(245,158,11,0.15); background:rgba(245,158,11,0.04); }
-.total-label { font-size:9px; letter-spacing:2px; color:#475569; text-transform:uppercase; }
-.total-value { font-family:var(--mono); font-size:24px; font-weight:800; color:var(--amber); }
+/* Sync status */
+.sync{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:10px;font-size:14px;font-weight:700}
+.sync.ok{background:rgba(0,221,102,.12);border:1px solid rgba(0,221,102,.3);color:var(--green)}
+.sync.off{background:rgba(255,68,68,.12);border:1px solid rgba(255,68,68,.3);color:var(--red)}
+.sync.load{background:rgba(68,153,255,.12);border:1px solid rgba(68,153,255,.3);color:var(--blue)}
 
-/* Bottom Nav */
-.nav { position:fixed; bottom:0; left:0; right:0; z-index:50; background:rgba(6,11,24,0.95); backdrop-filter:blur(12px); border-top:1px solid rgba(51,65,85,0.3); display:flex; justify-content:space-around; padding:6px 8px 8px; }
-.nav-item { display:flex; flex-direction:column; align-items:center; padding:6px 16px; border-radius:12px; cursor:pointer; position:relative; background:transparent; border:none; color:#475569; transition:all 0.15s; }
-.nav-item:active { transform:scale(0.95); }
-.nav-item.active { color:var(--amber); background:rgba(245,158,11,0.08); }
-.nav-icon { font-size:20px; }
-.nav-label { font-size:9px; letter-spacing:1px; text-transform:uppercase; font-weight:600; margin-top:2px; }
-.nav-badge { position:absolute; top:-2px; right:6px; width:16px; height:16px; border-radius:50%; background:var(--red); color:#fff; font-size:8px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+/* Chart */
+.chart-bars{display:flex;align-items:flex-end;gap:3px;height:160px}
+.chart-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.chart-val{font-size:10px;font-family:var(--mono);color:var(--muted);font-weight:800;margin-bottom:3px}
+.chart-bar{width:100%;border-radius:3px 3px 0 0;transition:height .6s;min-height:2px}
+.chart-dt{font-size:10px;margin-top:4px;font-weight:700}
+.chart-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;color:var(--muted);font-weight:700;margin-top:12px;padding-top:10px;border-top:2px solid var(--border);align-items:center}
+.legend-dot{width:14px;height:8px;border-radius:2px;display:inline-block;margin-right:4px}
 
-/* User badge */
-.user-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:8px; font-size:10px; font-weight:600; letter-spacing:0.5px; }
-.user-badge.shared { background:rgba(59,130,246,0.15); color:#93c5fd; border:1px solid rgba(59,130,246,0.2); }
+/* Mini stat */
+.mstat{border-radius:14px;padding:10px;text-align:center;border:2px solid var(--border);background:var(--card)}
+.mstat-n{font-family:var(--mono);font-size:24px;font-weight:900}
+.mstat-l{font-size:13px;font-weight:700;color:var(--dim);letter-spacing:1px}
 
-/* Category colors */
-.cat-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+/* Setup screen */
+.setup{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;flex-direction:column}
+.setup-box{max-width:400px;width:100%;text-align:center}
+.setup-icon{font-size:56px;margin-bottom:16px}
+.setup-title{font-size:28px;font-weight:900;color:var(--amber);font-family:var(--mono);margin-bottom:4px}
+.setup-sub{font-size:16px;color:var(--dim);font-weight:700;letter-spacing:2px;margin-bottom:36px}
 
-/* Section header */
-.sec-hdr { font-size:10px; letter-spacing:1.5px; color:#475569; text-transform:uppercase; margin-bottom:10px; }
-
-/* Stat mini */
-.stat-mini { border-radius:10px; padding:10px; text-align:center; border:1px solid var(--border); background:var(--card); }
-.stat-num { font-family:var(--mono); font-size:20px; font-weight:800; }
-.stat-label { font-size:9px; letter-spacing:1px; color:#475569; text-transform:uppercase; }
-
-@media (min-width:640px) {
-  .modal { border-radius:20px; border-bottom:1px solid var(--border); max-height:80vh; }
-  .overlay { align-items:center; }
-}
+@media(min-width:640px){.modal{border-radius:24px;border-bottom:2px solid var(--border);max-height:80vh}.ov{align-items:center}}
 </style>
 </head>
 <body>
-
 <div id="app"></div>
-
 <script>
-// ==================== DATA CONFIG ====================
-const CONFIG_DEFAULTS = {
-  masterBudget: 5200000,
-  cadangan: 500000,
-  targetFinish: '2026-02-27',
-  projectStart: '2026-02-17',
+// =====================================================
+// JSONBIN.IO CONFIG — ISI SETELAH SETUP
+// =====================================================
+const JSONBIN_API_KEY = '$2a$10$7i9yRFwNMiSNY5sc0b5uwuH1PsuGNWGd7aGXWF43cHHGahyl.8Hxy';
+const JSONBIN_BIN_ID  = '699c286cd0ea881f40d18b65';
+// =====================================================
+
+const CATEGORIES=[
+{name:'Konsumsi Helper',price:20000},
+{name:'Fee Pengawas (RT, RW, Tokoh Pemuda)',price:170000},
+{name:'Fee Penjaga Malam/Pemilik Lahan',price:120000},
+{name:'Sewa Alat (Jika Ada)',price:0},
+{name:'Bahan Bakar/Transport',price:0},
+{name:'Lain-lain',price:0}];
+const LOCS=['Mainroad','Interchange','Jembatan','Access Road','Base Camp','Lainnya'];
+const CS={'Konsumsi Helper':'Konsumsi','Fee Pengawas (RT, RW, Tokoh Pemuda)':'Fee Pengawas','Fee Penjaga Malam/Pemilik Lahan':'Fee Penjaga','Sewa Alat (Jika Ada)':'Sewa Alat','Bahan Bakar/Transport':'BBM/Transport','Lain-lain':'Lain-lain'};
+const CC=['#4499FF','#FFB020','#AA66FF','#FF4444','#00DD66','#FF66AA'];
+const cp=n=>(CATEGORIES.find(c=>c.name===n)||{}).price||0;
+
+const SEED={
+config:{masterBudget:5200000,cadangan:500000,targetFinish:'2026-02-27',projectStart:'2026-02-17'},
+expenses:[
+{id:'e1',date:'2026-02-17',category:'Konsumsi Helper',detail:'Makan Siang 6 Org',qty:6,price:20000,total:120000},
+{id:'e2',date:'2026-02-17',category:'Fee Pengawas (RT, RW, Tokoh Pemuda)',detail:'1 Orang Tokoh Pemuda',qty:1,price:170000,total:170000},
+{id:'e3',date:'2026-02-17',category:'Lain-lain',detail:'Oprasional',qty:1,price:212000,total:212000},
+{id:'e4',date:'2026-02-18',category:'Konsumsi Helper',detail:'Makan Siang 9 Org',qty:9,price:20000,total:180000},
+{id:'e5',date:'2026-02-18',category:'Fee Pengawas (RT, RW, Tokoh Pemuda)',detail:'3 Orang',qty:3,price:170000,total:510000},
+{id:'e6',date:'2026-02-18',category:'Fee Penjaga Malam/Pemilik Lahan',detail:'1 Orang Patroli',qty:1,price:120000,total:120000},
+{id:'e7',date:'2026-02-18',category:'Lain-lain',detail:'Konsumsi Oprasional',qty:1,price:88000,total:88000}],
+tasks:[
+{id:'t1',date:'2026-02-17',task:'Soil Test Titik 1 - Boring',location:'Mainroad',pic:'Andi',deadline:'2026-02-18',status:'Selesai',notes:''},
+{id:'t2',date:'2026-02-17',task:'Bayar Fee Pengawas RT',location:'Mainroad',pic:'Budi',deadline:'2026-02-17',status:'Selesai',notes:'Sudah dibayar tunai'},
+{id:'t3',date:'2026-02-18',task:'Soil Test Titik 2 - DCP',location:'Interchange',pic:'Andi',deadline:'2026-02-19',status:'Dalam Proses',notes:'Alat sedang dikirim'},
+{id:'t4',date:'2026-02-19',task:'Ambil Sampel Tanah Lab',location:'Mainroad',pic:'Citra',deadline:'2026-02-20',status:'Belum Mulai',notes:'Perlu cooler box'},
+{id:'t5',date:'2026-02-19',task:'Bayar Konsumsi Helper',location:'Base Camp',pic:'Budi',deadline:'2026-02-19',status:'Belum Mulai',notes:'9 orang x Rp20.000'},
+{id:'t6',date:'2026-02-20',task:'Laporan Harian ke PM',location:'Base Camp',pic:'Andi',deadline:'2026-02-20',status:'Belum Mulai',notes:''}]
 };
 
-const CATEGORIES = [
-  { name: 'Konsumsi Helper', price: 20000 },
-  { name: 'Fee Pengawas (RT, RW, Tokoh Pemuda)', price: 170000 },
-  { name: 'Fee Penjaga Malam/Pemilik Lahan', price: 120000 },
-  { name: 'Sewa Alat (Jika Ada)', price: 0 },
-  { name: 'Bahan Bakar/Transport', price: 0 },
-  { name: 'Lain-lain', price: 0 },
-];
+// Utils
+const fmt=n=>new Intl.NumberFormat('id-ID').format(Math.round(n));
+const rp=n=>'Rp '+fmt(n);
+const td=()=>new Date().toISOString().split('T')[0];
+const dd=(a,b)=>Math.ceil((new Date(b)-new Date(a))/864e5);
+const sd=d=>new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-const CAT_SHORT = {
-  'Konsumsi Helper': 'Konsumsi',
-  'Fee Pengawas (RT, RW, Tokoh Pemuda)': 'Fee Pengawas',
-  'Fee Penjaga Malam/Pemilik Lahan': 'Fee Penjaga',
-  'Sewa Alat (Jika Ada)': 'Sewa Alat',
-  'Bahan Bakar/Transport': 'BBM/Transport',
-  'Lain-lain': 'Lain-lain',
-};
+// State
+let S={expenses:[...SEED.expenses],tasks:[...SEED.tasks],config:{...SEED.config},
+userName:localStorage.getItem('st_name')||'',myNotes:JSON.parse(localStorage.getItem('st_notes')||'[]'),
+tab:'budget',taskFilter:'active',modal:null,expForm:null,taskForm:null,delTarget:null,
+confirmReset:false,syncStatus:'load',noteInput:'',setupDone:false};
 
-const LOCATIONS = ['Mainroad','Interchange','Jembatan','Access Road','Base Camp','Lainnya'];
-const CAT_COLORS = ['#3b82f6','#f59e0b','#8b5cf6','#ef4444','#22c55e','#ec4899'];
+// =====================================================
+// JSONBIN SYNC
+// =====================================================
+const API='https://api.jsonbin.io/v3/b/'+JSONBIN_BIN_ID;
+const HDRS={'Content-Type':'application/json','X-Master-Key':JSONBIN_API_KEY};
+let saving=false;
 
-const SEED_EXPENSES = [
-  { id:'e1', date:'2026-02-17', category:'Konsumsi Helper', detail:'Makan Siang 6 Org', qty:6, price:20000, total:120000 },
-  { id:'e2', date:'2026-02-17', category:'Fee Pengawas (RT, RW, Tokoh Pemuda)', detail:'1 Orang Tokoh Pemuda', qty:1, price:170000, total:170000 },
-  { id:'e3', date:'2026-02-17', category:'Lain-lain', detail:'Oprasional', qty:1, price:212000, total:212000 },
-  { id:'e4', date:'2026-02-18', category:'Konsumsi Helper', detail:'Makan Siang 9 Org', qty:9, price:20000, total:180000 },
-  { id:'e5', date:'2026-02-18', category:'Fee Pengawas (RT, RW, Tokoh Pemuda)', detail:'3 Orang', qty:3, price:170000, total:510000 },
-  { id:'e6', date:'2026-02-18', category:'Fee Penjaga Malam/Pemilik Lahan', detail:'1 Orang Patroli', qty:1, price:120000, total:120000 },
-  { id:'e7', date:'2026-02-18', category:'Lain-lain', detail:'Konsumsi Oprasional', qty:1, price:88000, total:88000 },
-];
-
-const SEED_TASKS = [
-  { id:'t1', date:'2026-02-17', task:'Soil Test Titik 1 - Boring', location:'Mainroad', pic:'Andi', deadline:'2026-02-18', status:'Selesai', notes:'' },
-  { id:'t2', date:'2026-02-17', task:'Bayar Fee Pengawas RT', location:'Mainroad', pic:'Budi', deadline:'2026-02-17', status:'Selesai', notes:'Sudah dibayar tunai' },
-  { id:'t3', date:'2026-02-18', task:'Soil Test Titik 2 - DCP', location:'Interchange', pic:'Andi', deadline:'2026-02-19', status:'Dalam Proses', notes:'Alat sedang dikirim' },
-  { id:'t4', date:'2026-02-19', task:'Ambil Sampel Tanah Lab', location:'Mainroad', pic:'Citra', deadline:'2026-02-20', status:'Belum Mulai', notes:'Perlu cooler box' },
-  { id:'t5', date:'2026-02-19', task:'Bayar Konsumsi Helper', location:'Base Camp', pic:'Budi', deadline:'2026-02-19', status:'Belum Mulai', notes:'9 orang x Rp20.000' },
-  { id:'t6', date:'2026-02-20', task:'Laporan Harian ke PM', location:'Base Camp', pic:'Andi', deadline:'2026-02-20', status:'Belum Mulai', notes:'' },
-];
-
-// ==================== STORAGE (localStorage) ====================
-const STORAGE_PREFIX = 'soiltest_';
-const SHARED_KEY = STORAGE_PREFIX + 'shared_';
-const PERSONAL_KEY = STORAGE_PREFIX + 'personal_';
-
-function loadShared(key, fallback) {
-  try { const d = localStorage.getItem(SHARED_KEY + key); return d ? JSON.parse(d) : fallback; } catch(e) { return fallback; }
-}
-function saveShared(key, data) {
-  try { localStorage.setItem(SHARED_KEY + key, JSON.stringify(data)); } catch(e) { console.error('Save error', e); }
-}
-function loadPersonal(key, fallback) {
-  try { const d = localStorage.getItem(PERSONAL_KEY + key); return d ? JSON.parse(d) : fallback; } catch(e) { return fallback; }
-}
-function savePersonal(key, data) {
-  try { localStorage.setItem(PERSONAL_KEY + key, JSON.stringify(data)); } catch(e) { console.error('Save error', e); }
+async function cloudLoad(){
+  if(JSONBIN_BIN_ID.includes('GANTI')){S.syncStatus='off';return;}
+  try{
+    S.syncStatus='load';render();
+    const r=await fetch(API+'/latest',{headers:{'X-Master-Key':JSONBIN_API_KEY}});
+    if(!r.ok)throw new Error(r.status);
+    const j=await r.json();
+    const d=j.record||j;
+    if(d.config)S.config=d.config;
+    if(d.expenses)S.expenses=d.expenses;
+    if(d.tasks)S.tasks=d.tasks;
+    S.syncStatus='ok';
+  }catch(e){console.error('Load err:',e);S.syncStatus='off';}
+  render();
 }
 
-// ==================== STATE ====================
-let state = {
-  expenses: loadShared('expenses', SEED_EXPENSES),
-  tasks: loadShared('tasks', SEED_TASKS),
-  config: loadShared('config', CONFIG_DEFAULTS),
-  userName: loadPersonal('userName', ''),
-  myNotes: loadPersonal('myNotes', []),
-  tab: 'budget',
-  taskFilter: 'active',
-  modal: null,
-  expForm: null,
-  taskForm: null,
-  deleteTarget: null,
-  settingsOpen: false,
-  userSetup: false,
-  confirmReset: false,
-};
-
-if (!state.userName) state.userSetup = true;
-
-// ==================== UTILS ====================
-const fmt = n => new Intl.NumberFormat('id-ID').format(Math.round(n));
-const fmtRp = n => 'Rp ' + fmt(n);
-const today = () => new Date().toISOString().split('T')[0];
-const diffDays = (a,b) => Math.ceil((new Date(b) - new Date(a)) / 86400000);
-const shortDate = d => new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short'});
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-const catPrice = name => (CATEGORIES.find(c=>c.name===name)||{}).price||0;
-const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-
-function calcStats() {
-  const e = state.expenses, c = state.config, td = today();
-  const totalUsed = e.reduce((s,x)=>s+x.total,0);
-  const eff = c.masterBudget - c.cadangan;
-  const rem = eff - totalUsed;
-  const dates = [...new Set(e.map(x=>x.date))].sort();
-  const numDays = dates.length || 1;
-  const avg = totalUsed / numDays;
-  const daysLeft = Math.max(0, diffDays(td, c.targetFinish));
-  const maxPerDay = daysLeft > 0 ? rem / daysLeft : 0;
-  const estDaysLeft = avg > 0 ? rem / avg : 999;
-  const estFinish = new Date(); estFinish.setDate(estFinish.getDate() + Math.floor(estDaysLeft));
-  const daily = {}; e.forEach(x => { daily[x.date] = (daily[x.date]||0) + x.total; });
-  const catBreak = {}; e.forEach(x => { catBreak[x.category] = (catBreak[x.category]||0) + x.total; });
-  const todayExp = daily[td] || 0;
-  const isSafe = estFinish >= new Date(c.targetFinish);
-  return { totalUsed, eff, rem, avg, daysLeft, maxPerDay, estFinish, daily, catBreak, todayExp, isSafe };
+async function cloudSave(){
+  if(JSONBIN_BIN_ID.includes('GANTI')||saving)return;
+  saving=true;
+  try{
+    const body=JSON.stringify({config:S.config,expenses:S.expenses,tasks:S.tasks});
+    const r=await fetch(API,{method:'PUT',headers:HDRS,body});
+    if(!r.ok)throw new Error(r.status);
+    S.syncStatus='ok';
+  }catch(e){console.error('Save err:',e);S.syncStatus='off';}
+  saving=false;
 }
 
-function calcTaskStats() {
-  const t = state.tasks, td = today();
-  const overdue = t.filter(x=>x.status!=='Selesai'&&x.status!=='Batal'&&x.deadline<td);
-  const todayT = t.filter(x=>x.deadline===td&&x.status!=='Selesai'&&x.status!=='Batal');
-  const active = t.filter(x=>x.status==='Belum Mulai'||x.status==='Dalam Proses');
-  const done = t.filter(x=>x.status==='Selesai');
-  const total = t.filter(x=>x.status!=='Batal').length;
-  return { overdue, todayTasks:todayT, active, done, total };
+// Auto refresh every 30s
+setInterval(()=>{if(!saving&&S.modal===null)cloudLoad();},30000);
+
+// =====================================================
+// CALCULATIONS
+// =====================================================
+function calcStats(){
+  const e=S.expenses,c=S.config,t=td();
+  const tot=e.reduce((s,x)=>s+x.total,0);
+  const eff=c.masterBudget-c.cadangan,rem=eff-tot;
+  const dates=[...new Set(e.map(x=>x.date))].sort();
+  const nd=dates.length||1,avg=tot/nd;
+  const dl=Math.max(0,dd(t,c.targetFinish));
+  const mpd=dl>0?rem/dl:0;
+  const edl=avg>0?rem/avg:999;
+  const ef=new Date();ef.setDate(ef.getDate()+Math.floor(edl));
+  const dy={};e.forEach(x=>{dy[x.date]=(dy[x.date]||0)+x.total;});
+  const cb={};e.forEach(x=>{cb[x.category]=(cb[x.category]||0)+x.total;});
+  const te=dy[t]||0;
+  return{tot,eff,rem,avg,dl,mpd,ef,dy,cb,te,safe:ef>=new Date(c.targetFinish)};
 }
 
-function getAlerts(s, ts) {
-  const a = [], c = state.config;
-  if(s.rem<1000000) a.push({type:'danger',title:'DANA KRITIS!',msg:`Sisa hanya ${fmtRp(s.rem)}. Segera top up!`});
-  if(!s.isSafe&&s.avg>0) a.push({type:'danger',title:'DANA TIDAK CUKUP!',msg:`Rata-rata ${fmtRp(s.avg)}/hari → habis sebelum ${shortDate(c.targetFinish)}.`});
-  else if(s.avg>s.maxPerDay&&s.maxPerDay>0) a.push({type:'warning',title:'OVER SPENDING!',msg:`Kurangi ${fmtRp(s.avg-s.maxPerDay)}/hari. Maks: ${fmtRp(s.maxPerDay)}.`});
-  if(ts.overdue.length>0) a.push({type:'danger',title:`${ts.overdue.length} TUGAS TERLAMBAT!`,msg:ts.overdue.map(x=>x.task).join(' · ')});
-  if(ts.todayTasks.length>0) a.push({type:'warning',title:`${ts.todayTasks.length} deadline HARI INI`,msg:ts.todayTasks.map(x=>x.task).join(' · ')});
+function calcTaskStats(){
+  const t=S.tasks,d=td();
+  const od=t.filter(x=>x.status!=='Selesai'&&x.status!=='Batal'&&x.deadline<d);
+  const tt=t.filter(x=>x.deadline===d&&x.status!=='Selesai'&&x.status!=='Batal');
+  const ac=t.filter(x=>x.status==='Belum Mulai'||x.status==='Dalam Proses');
+  const dn=t.filter(x=>x.status==='Selesai');
+  const tl=t.filter(x=>x.status!=='Batal').length;
+  return{od,tt,ac,dn,tl};
+}
+
+function getAlerts(s,ts){
+  const a=[],c=S.config;
+  if(s.rem<1e6)a.push({t:'danger',h:'DANA KRITIS!',m:'Sisa hanya '+rp(s.rem)+'. Segera top up!'});
+  if(!s.safe&&s.avg>0)a.push({t:'danger',h:'DANA TIDAK CUKUP!',m:'Rata-rata '+rp(s.avg)+'/hari → habis sebelum '+sd(c.targetFinish)+'.'});
+  else if(s.avg>s.mpd&&s.mpd>0)a.push({t:'warning',h:'OVER SPENDING!',m:'Kurangi '+rp(s.avg-s.mpd)+'/hari. Maks: '+rp(s.mpd)+'.'});
+  if(ts.od.length>0)a.push({t:'danger',h:ts.od.length+' TUGAS TERLAMBAT!',m:ts.od.map(x=>x.task).join(' · ')});
+  if(ts.tt.length>0)a.push({t:'warning',h:ts.tt.length+' deadline HARI INI',m:ts.tt.map(x=>x.task).join(' · ')});
   return a;
 }
 
-function getAllDates() {
-  const ds = [], start = new Date(state.config.projectStart), end = new Date(state.config.targetFinish);
-  for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)) ds.push(d.toISOString().split('T')[0]);
-  return ds;
+// =====================================================
+// ACTIONS
+// =====================================================
+function setTab(t){S.tab=t;render();}
+function setFilter(f){S.taskFilter=f;render();}
+function openExpForm(){S.expForm={date:td(),category:CATEGORIES[0].name,detail:'',qty:'1',price:String(CATEGORIES[0].price)};S.modal='exp';render();}
+function openTaskForm(){S.taskForm={task:'',location:LOCS[0],pic:'',deadline:td(),notes:''};S.modal='task';render();}
+function closeModal(){S.modal=null;S.delTarget=null;S.confirmReset=false;render();}
+
+function saveExpense(){
+  const f=S.expForm,pr=cp(f.category)||Number(f.price),q=Number(f.qty)||1;
+  S.expenses.push({id:uid(),date:f.date,category:f.category,detail:f.detail,qty:q,price:pr,total:q*pr});
+  S.modal=null;cloudSave();render();
 }
 
-// ==================== ACTIONS ====================
-function setTab(t) { state.tab = t; render(); }
-function setTaskFilter(f) { state.taskFilter = f; render(); }
-
-function openExpForm() {
-  state.expForm = { date:today(), category:CATEGORIES[0].name, detail:'', qty:'1', price:String(CATEGORIES[0].price) };
-  state.modal = 'expense'; render();
-}
-function openTaskForm() {
-  state.taskForm = { task:'', location:LOCATIONS[0], pic:'', deadline:today(), notes:'' };
-  state.modal = 'task'; render();
-}
-function closeModal() { state.modal = null; state.deleteTarget = null; state.settingsOpen = false; state.confirmReset = false; render(); }
-
-function saveExpense() {
-  const f = state.expForm;
-  const price = catPrice(f.category) || Number(f.price);
-  const qty = Number(f.qty) || 1;
-  state.expenses.push({ id:uid(), date:f.date, category:f.category, detail:f.detail, qty, price, total:qty*price });
-  saveShared('expenses', state.expenses);
-  state.modal = null; render();
+function saveTask(){
+  const f=S.taskForm;
+  S.tasks.push({id:uid(),date:td(),task:f.task,location:f.location,pic:f.pic,deadline:f.deadline,status:'Belum Mulai',notes:f.notes});
+  S.modal=null;cloudSave();render();
 }
 
-function saveTask() {
-  const f = state.taskForm;
-  state.tasks.push({ id:uid(), date:today(), task:f.task, location:f.location, pic:f.pic, deadline:f.deadline, status:'Belum Mulai', notes:f.notes });
-  saveShared('tasks', state.tasks);
-  state.modal = null; render();
+function cycleStatus(id){
+  const cy=['Belum Mulai','Dalam Proses','Selesai'];
+  const t=S.tasks.find(x=>x.id===id);if(!t)return;
+  const i=cy.indexOf(t.status);t.status=cy[(i+1)%cy.length];
+  cloudSave();render();
 }
 
-function cycleStatus(id) {
-  const cycle = ['Belum Mulai','Dalam Proses','Selesai'];
-  const t = state.tasks.find(x=>x.id===id);
-  if(!t) return;
-  const i = cycle.indexOf(t.status);
-  t.status = cycle[(i+1)%cycle.length];
-  saveShared('tasks', state.tasks);
-  render();
+function confirmDel(type,id,name){S.delTarget={type,id,name};S.modal='del';render();}
+function doDel(){
+  const d=S.delTarget;if(!d)return;
+  if(d.type==='expense')S.expenses=S.expenses.filter(x=>x.id!==d.id);
+  else S.tasks=S.tasks.filter(x=>x.id!==d.id);
+  S.modal=null;S.delTarget=null;cloudSave();render();
 }
 
-function confirmDelete(type, id, name) {
-  state.deleteTarget = {type, id, name};
-  state.modal = 'delete'; render();
-}
-function doDelete() {
-  const d = state.deleteTarget;
-  if(!d) return;
-  if(d.type==='expense') { state.expenses = state.expenses.filter(x=>x.id!==d.id); saveShared('expenses', state.expenses); }
-  else { state.tasks = state.tasks.filter(x=>x.id!==d.id); saveShared('tasks', state.tasks); }
-  state.modal = null; state.deleteTarget = null; render();
-}
+function saveConfig(k,v){S.config[k]=v;cloudSave();render();}
+function doReset(){S.expenses=[...SEED.expenses];S.tasks=[...SEED.tasks];S.config={...SEED.config};S.modal=null;S.confirmReset=false;cloudSave();render();}
 
-function setUserName(name) {
-  state.userName = name; savePersonal('userName', name);
-  state.userSetup = false; render();
+function setUserName(n){S.userName=n;localStorage.setItem('st_name',n);S.setupDone=true;render();}
+function addNote(){
+  const t=S.noteInput.trim();if(!t)return;
+  S.myNotes.unshift({id:uid(),text:t,date:td(),time:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})});
+  localStorage.setItem('st_notes',JSON.stringify(S.myNotes));S.noteInput='';render();
 }
+function delNote(id){S.myNotes=S.myNotes.filter(n=>n.id!==id);localStorage.setItem('st_notes',JSON.stringify(S.myNotes));render();}
 
-function saveNote(text) {
-  state.myNotes.unshift({ id:uid(), date:today(), text, time:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) });
-  savePersonal('myNotes', state.myNotes);
-  render();
-}
-function deleteNote(id) {
-  state.myNotes = state.myNotes.filter(n=>n.id!==id);
-  savePersonal('myNotes', state.myNotes);
-  render();
-}
+// =====================================================
+// RENDER
+// =====================================================
+function render(){
+const s=calcStats(),ts=calcTaskStats(),al=getAlerts(s,ts),c=S.config,t=td();
+let h='';
 
-function openSettings() { state.settingsOpen = true; state.modal = 'settings'; render(); }
-function saveConfig(key, val) {
-  state.config[key] = val;
-  saveShared('config', state.config);
-  render();
-}
-function resetAll() {
-  state.expenses = [...SEED_EXPENSES]; state.tasks = [...SEED_TASKS]; state.config = {...CONFIG_DEFAULTS};
-  saveShared('expenses', state.expenses); saveShared('tasks', state.tasks); saveShared('config', state.config);
-  state.modal = null; state.confirmReset = false; render();
-}
-
-// ==================== RENDER ====================
-function render() {
-  const s = calcStats();
-  const ts = calcTaskStats();
-  const alerts = getAlerts(s, ts);
-  const td = today();
-  const c = state.config;
-
-  // User setup screen
-  if (state.userSetup) {
-    document.getElementById('app').innerHTML = `
-      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;">
-        <div style="text-align:center;max-width:320px;width:100%;">
-          <div style="font-size:48px;margin-bottom:16px;">⛏️</div>
-          <div style="font-family:var(--mono);font-size:22px;font-weight:800;color:var(--amber);margin-bottom:4px;">FIELD CONTROL</div>
-          <div style="font-size:11px;letter-spacing:2px;color:#475569;text-transform:uppercase;margin-bottom:32px;">Soil Test Project Dashboard</div>
-          <div class="field" style="text-align:left;margin-bottom:16px;">
-            <label>Nama Anda</label>
-            <input type="text" id="setup-name" placeholder="Ketik nama Anda..." style="text-align:center;font-size:18px;padding:16px;" />
-          </div>
-          <button class="btn btn-amber" onclick="const n=document.getElementById('setup-name').value.trim(); if(n) setUserName(n);" style="margin-top:8px;">
-            MASUK →
-          </button>
-          <div style="font-size:10px;color:#334155;margin-top:16px;">Nama disimpan di HP Anda (pribadi)</div>
-        </div>
-      </div>`;
-    return;
-  }
-
-  let html = '';
-
-  // Header
-  html += `<div class="hdr">
-    <div class="hdr-left">
-      <div class="pre">Soil Test Project</div>
-      <div class="title">FIELD CONTROL</div>
+// USER SETUP
+if(!S.userName){
+  document.getElementById('app').innerHTML=`
+  <div class="setup"><div class="setup-box">
+    <div class="setup-icon">⛏️</div>
+    <div class="setup-title">FIELD CONTROL</div>
+    <div class="setup-sub">SOIL TEST DASHBOARD</div>
+    <div class="field" style="text-align:left;margin-bottom:20px">
+      <label>NAMA ANDA</label>
+      <input type="text" id="sn" placeholder="Ketik nama Anda..." style="text-align:center;font-size:20px;padding:18px" />
     </div>
-    <div class="hdr-right">
-      <div class="hdr-date">${new Date().toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short'})}</div>
-      <div class="hdr-countdown ${s.daysLeft<=3?'urgent':''}">⏱ ${s.daysLeft} HARI LAGI</div>
-    </div>
-    <div class="hdr-user">
-      <button class="hdr-user-btn" onclick="openSettings()" title="Settings">⚙</button>
+    <button class="btn btn-amber" onclick="var v=document.getElementById('sn').value.trim();if(v)setUserName(v);">MASUK →</button>
+    <div style="font-size:14px;color:var(--dim);margin-top:20px;font-weight:600">Nama disimpan di HP Anda saja</div>
+  </div></div>`;return;
+}
+
+// HEADER
+const urgent=s.dl<=3;
+h+=`<div class="hdr">
+  <div><div class="hdr-sub">SOIL TEST</div><h1>FIELD CONTROL</h1></div>
+  <div class="hdr-right">
+    <div class="hdr-date">${new Date().toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short'})}</div>
+    <div class="hdr-days ${urgent?'urgent':''}" style="color:${urgent?'var(--red)':'var(--amber)'}">⏱ ${s.dl} HARI LAGI</div>
+  </div>
+  <button class="gear" onclick="S.modal='set';render();">⚙</button>
+</div>`;
+
+h+='<div class="content"><div class="gap anim">';
+
+// Greeting + Sync
+const syncCls=S.syncStatus==='ok'?'ok':S.syncStatus==='load'?'load':'off';
+const syncTxt=S.syncStatus==='ok'?'🔗 Data Sync OK':S.syncStatus==='load'?'⟳ Memuat...':'⚠ Offline';
+h+=`<div style="display:flex;justify-content:space-between;align-items:center">
+  <div style="font-size:17px;color:var(--muted);font-weight:700">Halo, <strong style="color:var(--white)">${esc(S.userName)}</strong></div>
+  <div class="sync ${syncCls}">${syncTxt}</div>
+</div>`;
+
+// Alerts
+al.forEach(a=>{h+=`<div class="alert ${a.t}"><span class="alert-icon">${a.t==='danger'?'🚨':'⚠️'}</span><div><div class="alert-title">${esc(a.h)}</div><div class="alert-msg">${esc(a.m)}</div></div></div>`;});
+
+// ========== BUDGET ==========
+if(S.tab==='budget'){
+  const pct=Math.min((s.tot/s.eff)*100,100);
+  const dg=pct>90||s.rem<1e6,wn=pct>70;
+  const gc=dg?'var(--red)':wn?'var(--amber)':'var(--green)';
+  h+=`<div class="gauge">
+    <svg width="210" height="124" viewBox="0 0 210 124">
+      <path d="M 22 110 A 83 83 0 0 1 188 110" fill="none" stroke="#0a1120" stroke-width="20" stroke-linecap="round"/>
+      <path d="M 22 110 A 83 83 0 0 1 188 110" fill="none" stroke="${gc}" stroke-width="20" stroke-linecap="round" stroke-dasharray="${(pct/100)*260.5} 260.5"/>
+      <text x="105" y="82" text-anchor="middle" fill="${gc}" font-size="42" font-weight="900" font-family="var(--mono)">${Math.round(pct)}%</text>
+      <text x="105" y="108" text-anchor="middle" fill="var(--muted)" font-size="14" font-weight="700" letter-spacing="3">TERPAKAI</text>
+    </svg>
+    <div class="gauge-lbl">SISA DANA EFEKTIF</div>
+    <div class="gauge-val" style="color:${gc}">${rp(s.rem)}</div>
+  </div>`;
+
+  h+=`<div class="grid2">
+    <div class="card"><div class="card-label">💵 MASTER BUDGET</div><div class="card-value">${rp(c.masterBudget)}</div><div class="card-sub">Cadangan: ${rp(c.cadangan)}</div></div>
+    <div class="card"><div class="card-label">🔥 TERPAKAI</div><div class="card-value" style="color:var(--red)">${rp(s.tot)}</div><div class="card-sub">${Math.round(s.tot/s.eff*100)}% dari efektif</div></div>
+    <div class="card"><div class="card-label">📈 RATA²/HARI</div><div class="card-value" style="color:${s.avg>s.mpd?'var(--red)':'var(--green)'}">${rp(s.avg)}</div><div class="card-sub">Maks: ${rp(s.mpd)}</div></div>
+    <div class="card"><div class="card-label">📅 HARI INI</div><div class="card-value" style="color:${s.te>s.mpd&&s.mpd>0?'var(--red)':'var(--green)'}">${rp(s.te)}</div><div class="card-sub">${s.te>s.mpd&&s.mpd>0?'⚠️ OVER BUDGET':'✓ OK'}</div></div>
+  </div>`;
+
+  // Forecast
+  const bp=Math.min(s.tot/s.eff*100,100),tp=Math.min(dd(c.projectStart,t)/dd(c.projectStart,c.targetFinish)*100,100);
+  h+=`<div class="card"><div class="sec">📊 PROYEKSI</div>
+    <div class="bar"><div class="bar-head"><span>Budget Terpakai</span><span>${Math.round(bp)}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${bp}%;background:${bp>90?'var(--red)':bp>70?'var(--amber)':'var(--green)'}"></div></div></div>
+    <div class="bar"><div class="bar-head"><span>Waktu Berlalu</span><span>${Math.round(tp)}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${tp}%;background:var(--blue)"></div></div></div>
+    <div style="border-top:2px solid var(--border);margin-top:10px;padding-top:10px">
+      <div style="display:flex;justify-content:space-between;font-size:17px;margin-bottom:6px"><span style="color:var(--muted);font-weight:700">Estimasi habis</span><span style="font-family:var(--mono);font-weight:900;color:${s.safe?'var(--green)':'var(--red)'}">${s.ef.toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:17px"><span style="color:var(--muted);font-weight:700">Target selesai</span><span style="font-family:var(--mono);font-weight:900;color:var(--amber)">${sd(c.targetFinish)}</span></div>
     </div>
   </div>`;
 
-  // Content
-  html += '<div class="content"><div class="gap slide-up">';
+  // Category
+  const ce=Object.entries(s.cb).sort((a,b)=>b[1]-a[1]);
+  if(ce.length){
+    h+='<div class="card"><div class="sec">💳 PER KATEGORI</div>';
+    ce.forEach(([cat,v],i)=>{
+      h+=`<div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;margin-bottom:6px"><span style="color:#CCDDEE">${esc(CS[cat]||cat)}</span><span style="font-family:var(--mono);color:var(--muted)">${rp(v)}</span></div>
+        <div style="height:10px;background:#0a1120;border-radius:99px;overflow:hidden"><div style="height:100%;border-radius:99px;width:${(v/s.tot)*100}%;background:${CC[i%CC.length]};transition:width .8s"></div></div>
+      </div>`;
+    });
+    h+='</div>';
+  }
+  h+=`<button class="btn btn-amber" onclick="openExpForm()">+ TAMBAH PENGELUARAN</button>`;
+}
 
-  // User greeting
-  html += `<div style="display:flex;justify-content:space-between;align-items:center;">
-    <div style="font-size:13px;color:#64748b;">Halo, <strong style="color:var(--text)">${esc(state.userName)}</strong></div>
-    <div class="user-badge shared">🔗 Data Shared</div>
+// ========== TASKS ==========
+if(S.tab==='tasks'){
+  h+=`<div class="grid4">
+    <div class="mstat"><div class="mstat-n" style="color:var(--blue)">${ts.ac.length}</div><div class="mstat-l">AKTIF</div></div>
+    <div class="mstat"><div class="mstat-n" style="color:var(--red)">${ts.od.length}</div><div class="mstat-l">OVERDUE</div></div>
+    <div class="mstat"><div class="mstat-n" style="color:var(--green)">${ts.dn.length}</div><div class="mstat-l">SELESAI</div></div>
+    <div class="mstat"><div class="mstat-n">${ts.tl}</div><div class="mstat-l">TOTAL</div></div>
   </div>`;
 
-  // Alerts
-  if (alerts.length > 0) {
-    alerts.forEach(a => {
-      html += `<div class="alert ${a.type}">
-        <span class="alert-icon">${a.type==='danger'?'🚨':a.type==='warning'?'⚠️':'ℹ️'}</span>
-        <div><div class="alert-title">${esc(a.title)}</div><div class="alert-msg">${esc(a.msg)}</div></div>
-      </div>`;
-    });
-  }
+  const pp=ts.tl>0?Math.round(ts.dn.length/ts.tl*100):0;
+  h+=`<div class="bar"><div class="bar-head"><span>Progress Tugas</span><span>${pp}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${pp}%;background:var(--green)"></div></div></div>`;
 
-  // ===== BUDGET TAB =====
-  if (state.tab === 'budget') {
-    const pct = Math.min((s.totalUsed/s.eff)*100,100);
-    const danger = pct>90||s.rem<1000000, warn = pct>70;
-    const gaugeColor = danger?'var(--red)':warn?'var(--amber)':'var(--green)';
-    const remColor = danger?'color:var(--red)':warn?'color:var(--amber)':'color:var(--green)';
+  const flt=[{id:'active',l:'Aktif'},{id:'today',l:'Hari Ini ('+ts.tt.length+')'},{id:'overdue',l:'Overdue ('+ts.od.length+')'},{id:'done',l:'Selesai'},{id:'all',l:'Semua'}];
+  h+='<div class="chips">';flt.forEach(f=>{h+=`<button class="chip ${S.taskFilter===f.id?'on':''}" onclick="setFilter('${f.id}')">${f.l}</button>`;});h+='</div>';
 
-    // Gauge SVG
-    html += `<div class="gauge">
-      <svg width="180" height="108" viewBox="0 0 180 108">
-        <path d="M 22 95 A 68 68 0 0 1 158 95" fill="none" stroke="#0f172a" stroke-width="16" stroke-linecap="round"/>
-        <path d="M 22 95 A 68 68 0 0 1 158 95" fill="none" stroke="${gaugeColor}" stroke-width="16" stroke-linecap="round"
-          stroke-dasharray="${(pct/100)*213.6} 213.6"/>
-        <text x="90" y="70" text-anchor="middle" fill="${gaugeColor}" font-size="32" font-weight="800" font-family="var(--mono)">${Math.round(pct)}%</text>
-        <text x="90" y="90" text-anchor="middle" fill="#475569" font-size="10" letter-spacing="2" font-family="var(--font)">TERPAKAI</text>
-      </svg>
-      <div class="gauge-label">Sisa Dana Efektif</div>
-      <div class="gauge-value" style="${remColor}">${fmtRp(s.rem)}</div>
-    </div>`;
+  let ft=S.tasks;
+  if(S.taskFilter==='active')ft=ft.filter(x=>x.status==='Belum Mulai'||x.status==='Dalam Proses');
+  else if(S.taskFilter==='today')ft=ft.filter(x=>x.deadline===t&&x.status!=='Selesai'&&x.status!=='Batal');
+  else if(S.taskFilter==='overdue')ft=ft.filter(x=>x.status!=='Selesai'&&x.status!=='Batal'&&x.deadline<t);
+  else if(S.taskFilter==='done')ft=ft.filter(x=>x.status==='Selesai');
 
-    // Stat cards
-    html += `<div class="grid2">
-      <div class="card"><div class="card-label">💵 Master Budget</div><div class="card-value">${fmtRp(c.masterBudget)}</div><div class="card-sub">Cadangan: ${fmtRp(c.cadangan)}</div></div>
-      <div class="card"><div class="card-label">🔥 Terpakai</div><div class="card-value" style="color:var(--red)">${fmtRp(s.totalUsed)}</div><div class="card-sub">${Math.round(s.totalUsed/s.eff*100)}% dari efektif</div></div>
-      <div class="card"><div class="card-label">📈 Rata²/Hari</div><div class="card-value" style="color:${s.avg>s.maxPerDay?'var(--red)':'var(--green)'}">${fmtRp(s.avg)}</div><div class="card-sub">Maks: ${fmtRp(s.maxPerDay)}</div></div>
-      <div class="card"><div class="card-label">📅 Hari Ini</div><div class="card-value" style="color:${s.todayExp>s.maxPerDay&&s.maxPerDay>0?'var(--red)':'var(--green)'}">${fmtRp(s.todayExp)}</div><div class="card-sub">${s.todayExp>s.maxPerDay&&s.maxPerDay>0?'⚠️ OVER BUDGET':'✓ OK'}</div></div>
-    </div>`;
+  if(!ft.length)h+=`<div style="text-align:center;padding:48px 0;color:var(--dim)"><div style="font-size:40px;margin-bottom:10px">✓</div><div style="font-size:16px;font-weight:700">Tidak ada tugas</div></div>`;
 
-    // Forecast
-    const budgetPct = Math.min(s.totalUsed/s.eff*100,100);
-    const timePct = Math.min(diffDays(c.projectStart,td)/diffDays(c.projectStart,c.targetFinish)*100,100);
-    html += `<div class="card">
-      <div class="sec-hdr">📊 Proyeksi</div>
-      <div class="bar-wrap"><div class="bar-head"><span>Budget Terpakai</span><span>${Math.round(budgetPct)}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${budgetPct}%;background:${budgetPct>90?'var(--red)':budgetPct>70?'var(--amber)':'var(--green)'}"></div></div></div>
-      <div class="bar-wrap"><div class="bar-head"><span>Waktu Berlalu</span><span>${Math.round(timePct)}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${timePct}%;background:var(--blue)"></div></div></div>
-      <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;">
-        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;"><span style="color:#475569">Estimasi habis</span><span style="font-family:var(--mono);font-weight:700;color:${s.isSafe?'var(--green)':'var(--red)'}">${s.estFinish.toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:#475569">Target selesai</span><span style="font-family:var(--mono);font-weight:700;color:var(--amber)">${shortDate(c.targetFinish)}</span></div>
-      </div>
-    </div>`;
-
-    // Category Breakdown
-    const catEntries = Object.entries(s.catBreak).sort((a,b)=>b[1]-a[1]);
-    if (catEntries.length) {
-      html += '<div class="card"><div class="sec-hdr">💳 Per Kategori</div>';
-      catEntries.forEach(([cat,val],i) => {
-        html += `<div style="margin-bottom:10px;">
-          <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:#cbd5e1">${esc(CAT_SHORT[cat]||cat)}</span><span style="color:#475569;font-family:var(--mono)">${fmtRp(val)}</span></div>
-          <div style="height:6px;background:#0f172a;border-radius:99px;overflow:hidden;margin-top:4px;"><div style="height:100%;border-radius:99px;width:${(val/s.totalUsed)*100}%;background:${CAT_COLORS[i%CAT_COLORS.length]};transition:width 0.8s"></div></div>
-        </div>`;
-      });
-      html += '</div>';
-    }
-
-    html += `<button class="btn btn-amber" onclick="openExpForm()">+ TAMBAH PENGELUARAN</button>`;
-  }
-
-  // ===== TASKS TAB =====
-  if (state.tab === 'tasks') {
-    html += `<div class="grid4">
-      <div class="stat-mini"><div class="stat-num" style="color:var(--blue)">${ts.active.length}</div><div class="stat-label">Aktif</div></div>
-      <div class="stat-mini"><div class="stat-num" style="color:var(--red)">${ts.overdue.length}</div><div class="stat-label">Overdue</div></div>
-      <div class="stat-mini"><div class="stat-num" style="color:var(--green)">${ts.done.length}</div><div class="stat-label">Selesai</div></div>
-      <div class="stat-mini"><div class="stat-num">${ts.total}</div><div class="stat-label">Total</div></div>
-    </div>`;
-
-    const taskPct = ts.total>0?Math.round(ts.done.length/ts.total*100):0;
-    html += `<div class="bar-wrap"><div class="bar-head"><span>Progress Tugas</span><span>${taskPct}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${taskPct}%;background:var(--green)"></div></div></div>`;
-
-    // Filter chips
-    const filters = [
-      {id:'active',l:'Aktif'},{id:'today',l:`Hari Ini (${ts.todayTasks.length})`},
-      {id:'overdue',l:`Overdue (${ts.overdue.length})`},{id:'done',l:'Selesai'},{id:'all',l:'Semua'}
-    ];
-    html += '<div class="chips no-sb">';
-    filters.forEach(f => {
-      html += `<button class="chip ${state.taskFilter===f.id?'active':''}" onclick="setTaskFilter('${f.id}')">${f.l}</button>`;
-    });
-    html += '</div>';
-
-    // Filter tasks
-    let filtered = state.tasks;
-    if(state.taskFilter==='active') filtered = filtered.filter(t=>t.status==='Belum Mulai'||t.status==='Dalam Proses');
-    else if(state.taskFilter==='today') filtered = filtered.filter(t=>t.deadline===td&&t.status!=='Selesai'&&t.status!=='Batal');
-    else if(state.taskFilter==='overdue') filtered = filtered.filter(t=>t.status!=='Selesai'&&t.status!=='Batal'&&t.deadline<td);
-    else if(state.taskFilter==='done') filtered = filtered.filter(t=>t.status==='Selesai');
-
-    if(filtered.length===0) {
-      html += '<div style="text-align:center;padding:40px 0;color:#334155;"><div style="font-size:32px;margin-bottom:8px;">✓</div><div style="font-size:12px;">Tidak ada tugas untuk filter ini</div></div>';
-    }
-
-    filtered.forEach(t => {
-      const isOD = t.status!=='Selesai'&&t.status!=='Batal'&&t.deadline<td;
-      const sIcon = t.status==='Selesai'?'✓':t.status==='Dalam Proses'?'◐':'○';
-      const sClass = t.status==='Selesai'?'done':t.status==='Dalam Proses'?'progress':'pending';
-      html += `<div class="task-card ${isOD?'overdue':''}">
-        <button class="status-btn ${sClass}" onclick="cycleStatus('${t.id}')">${sIcon}</button>
-        <div class="task-body">
-          <div class="task-name ${t.status==='Selesai'?'completed':''}">${esc(t.task)}</div>
-          <div class="task-tags">
-            <span class="tag">📍${esc(t.location)}</span>
-            <span class="tag">👤${esc(t.pic)}</span>
-            <span class="tag ${isOD?'od':''}">${isOD?'⚠ ':''}📅${shortDate(t.deadline)}</span>
-          </div>
-          ${t.notes?`<div class="task-note">💬 ${esc(t.notes)}</div>`:''}
+  ft.forEach(x=>{
+    const od=x.status!=='Selesai'&&x.status!=='Batal'&&x.deadline<t;
+    const si=x.status==='Selesai'?'✓':x.status==='Dalam Proses'?'◐':'○';
+    const sc=x.status==='Selesai'?'done':x.status==='Dalam Proses'?'prog':'pend';
+    h+=`<div class="task ${od?'od':''}">
+      <button class="sbtn ${sc}" onclick="cycleStatus('${x.id}')">${si}</button>
+      <div style="flex:1;min-width:0">
+        <div class="task-name ${x.status==='Selesai'?'fin':''}">${esc(x.task)}</div>
+        <div class="tags">
+          <span class="tag">📍${esc(x.location)}</span>
+          <span class="tag">👤${esc(x.pic)}</span>
+          <span class="tag ${od?'od':''}">${od?'⚠ ':''}📅${sd(x.deadline)}</span>
         </div>
-        <button class="del-btn" onclick="confirmDelete('task','${t.id}','${esc(t.task)}')">🗑</button>
-      </div>`;
-    });
-
-    html += `<button class="btn btn-blue" onclick="openTaskForm()">+ TAMBAH TUGAS</button>`;
-  }
-
-  // ===== CHART TAB =====
-  if (state.tab === 'chart') {
-    const allDates = getAllDates();
-    const maxD = Math.max(...allDates.map(d=>s.daily[d]||0), s.maxPerDay||1, 1);
-
-    html += '<div class="card"><div class="sec-hdr">📊 Pengeluaran Harian</div><div class="chart-bars">';
-    allDates.forEach(d => {
-      const val = s.daily[d]||0;
-      const h = maxD>0?(val/maxD)*100:0;
-      const isTd = d===td;
-      const isOver = val>s.maxPerDay&&s.maxPerDay>0;
-      const cls = isOver?'over':isTd?'today':val>0?'normal':'empty';
-      const dayNum = new Date(d+'T00:00:00').getDate();
-      html += `<div class="chart-col">
-        ${val>0?`<div class="chart-val">${Math.round(val/1000)}k</div>`:''}
-        <div class="chart-bar ${cls}" style="height:${Math.max(h,val>0?5:2)}%"></div>
-        <div class="chart-date ${isTd?'today':''}">${dayNum}</div>
-      </div>`;
-    });
-    html += '</div>';
-    html += `<div class="chart-legend">
-      <span><span class="legend-dot" style="background:var(--red)"></span>Over</span>
-      <span><span class="legend-dot" style="background:var(--amber)"></span>Hari ini</span>
-      <span><span class="legend-dot" style="background:var(--blue)"></span>Normal</span>
-      <span style="margin-left:auto;font-family:var(--mono);">Jatah: ${fmtRp(s.maxPerDay)}</span>
-    </div></div>`;
-
-    // Category
-    const catEntries = Object.entries(s.catBreak).sort((a,b)=>b[1]-a[1]);
-    html += '<div class="card"><div class="sec-hdr">🏷 Breakdown Kategori</div>';
-    catEntries.forEach(([cat,val],i) => {
-      const pctC = s.totalUsed>0?(val/s.totalUsed*100).toFixed(0):0;
-      html += `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-        <div class="cat-dot" style="background:${CAT_COLORS[i%CAT_COLORS.length]}"></div>
-        <div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:#cbd5e1">${esc(CAT_SHORT[cat])}</span><span style="color:#475569">${pctC}%</span></div><div style="font-size:11px;font-family:var(--mono);color:#334155">${fmtRp(val)}</div></div>
-      </div>`;
-    });
-    html += '</div>';
-
-    // Budget vs Time
-    const bPct = Math.min(s.totalUsed/s.eff*100,100);
-    const tPct = Math.min(diffDays(c.projectStart,td)/diffDays(c.projectStart,c.targetFinish)*100,100);
-    const overSpend = bPct > tPct;
-    html += `<div class="card">
-      <div class="sec-hdr">⚖ Budget vs Waktu</div>
-      <div class="bar-wrap"><div class="bar-head"><span>Budget Terpakai</span><span>${Math.round(bPct)}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${bPct}%;background:${bPct>70?'var(--amber)':'var(--green)'}"></div></div></div>
-      <div class="bar-wrap"><div class="bar-head"><span>Waktu Berlalu</span><span>${Math.round(tPct)}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${tPct}%;background:var(--blue)"></div></div></div>
-      <div style="text-align:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:14px;font-weight:700;color:${overSpend?'var(--red)':'var(--green)'}">
-        ${overSpend?'⚠️ Spending LEBIH CEPAT dari waktu!':'✅ Spending seimbang dengan waktu'}
+        ${x.notes?`<div class="task-note">💬 ${esc(x.notes)}</div>`:''}
       </div>
+      <button class="del" onclick="confirmDel('task','${x.id}','${esc(x.task)}')">🗑</button>
     </div>`;
-  }
-
-  // ===== LOG TAB =====
-  if (state.tab === 'log') {
-    html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div class="sec-hdr" style="margin:0">📝 ${state.expenses.length} Transaksi</div>
-      <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber)">Total: ${fmtRp(s.totalUsed)}</div>
-    </div>`;
-
-    [...state.expenses].reverse().forEach(e => {
-      html += `<div class="log-item">
-        <div class="log-body"><div class="log-title">${esc(e.detail||e.category)}</div><div class="log-sub">${shortDate(e.date)} · ${esc(CAT_SHORT[e.category])} · ${e.qty}×${fmtRp(e.price)}</div></div>
-        <div class="log-amount">${fmtRp(e.total)}</div>
-        <button class="del-btn" onclick="confirmDelete('expense','${e.id}','${esc(e.detail||e.category)}')">🗑</button>
-      </div>`;
-    });
-  }
-
-  // ===== NOTES TAB (Personal) =====
-  if (state.tab === 'notes') {
-    html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div class="sec-hdr" style="margin:0">📌 Catatan Pribadi</div>
-      <div style="font-size:10px;color:#334155;">Hanya terlihat oleh Anda</div>
-    </div>`;
-    html += `<div style="display:flex;gap:8px;margin-bottom:12px;">
-      <input type="text" id="note-input" placeholder="Tulis catatan..." style="flex:1;border-radius:10px;padding:12px;font-size:14px;border:1px solid var(--dim);background:rgba(15,23,42,0.8);color:var(--text);outline:none;" />
-      <button class="btn btn-amber" style="width:auto;padding:12px 20px;" onclick="const i=document.getElementById('note-input');if(i.value.trim()){saveNote(i.value.trim());i.value='';}">+</button>
-    </div>`;
-
-    if(state.myNotes.length===0) {
-      html += '<div style="text-align:center;padding:40px 0;color:#334155;font-size:12px;">Belum ada catatan pribadi</div>';
-    }
-    state.myNotes.forEach(n => {
-      html += `<div class="log-item" style="margin-bottom:6px;">
-        <div class="log-body"><div class="log-title" style="white-space:normal;">${esc(n.text)}</div><div class="log-sub">${shortDate(n.date)} ${n.time}</div></div>
-        <button class="del-btn" onclick="deleteNote('${n.id}')">🗑</button>
-      </div>`;
-    });
-  }
-
-  html += '</div></div>'; // close gap + content
-
-  // Bottom Nav
-  const navItems = [
-    {id:'budget',icon:'💰',label:'Budget'},
-    {id:'tasks',icon:'📋',label:'Tugas'},
-    {id:'chart',icon:'📊',label:'Grafik'},
-    {id:'log',icon:'📝',label:'Log'},
-    {id:'notes',icon:'📌',label:'Pribadi'},
-  ];
-  html += '<div class="nav">';
-  navItems.forEach(n => {
-    const badge = n.id==='tasks'&&ts.overdue.length>0?`<span class="nav-badge">${ts.overdue.length}</span>`:'';
-    html += `<button class="nav-item ${state.tab===n.id?'active':''}" onclick="setTab('${n.id}')">
-      ${badge}<span class="nav-icon">${n.icon}</span><span class="nav-label">${n.label}</span>
-    </button>`;
   });
-  html += '</div>';
-
-  // ===== MODALS =====
-
-  // Add Expense Modal
-  if (state.modal === 'expense') {
-    const f = state.expForm;
-    const fixedPrice = catPrice(f.category);
-    const price = fixedPrice || Number(f.price) || 0;
-    const total = price * (Number(f.qty) || 1);
-    html += `<div class="overlay" onclick="closeModal()"><div class="overlay-bg"></div>
-      <div class="modal" onclick="event.stopPropagation()">
-        <div class="modal-hdr"><div class="modal-title">Tambah Pengeluaran</div><button class="modal-close" onclick="closeModal()">✕</button></div>
-        <div class="modal-body">
-          <div class="field"><label>Tanggal</label><input type="date" value="${f.date}" onchange="state.expForm.date=this.value" /></div>
-          <div class="field"><label>Kategori</label><select onchange="state.expForm.category=this.value;state.expForm.price=String(catPrice(this.value));render();">
-            ${CATEGORIES.map(c=>`<option value="${esc(c.name)}" ${c.name===f.category?'selected':''}>${esc(c.name)}</option>`).join('')}
-          </select></div>
-          <div class="field"><label>Detail / Keterangan</label><input type="text" placeholder="Misal: Makan siang 6 orang" value="${esc(f.detail)}" oninput="state.expForm.detail=this.value" /></div>
-          <div class="grid2">
-            <div class="field"><label>QTY</label><input type="number" min="1" value="${f.qty}" oninput="state.expForm.qty=this.value;render();" /></div>
-            <div class="field"><label>Harga Satuan</label><input type="number" value="${fixedPrice||f.price}" ${fixedPrice?'disabled':''} oninput="state.expForm.price=this.value;render();" /></div>
-          </div>
-          <div class="total-preview"><div class="total-label">Total</div><div class="total-value">${fmtRp(total)}</div></div>
-          <button class="btn btn-green" onclick="saveExpense()">✓ SIMPAN PENGELUARAN</button>
-        </div>
-      </div>
-    </div>`;
-  }
-
-  // Add Task Modal
-  if (state.modal === 'task') {
-    const f = state.taskForm;
-    html += `<div class="overlay" onclick="closeModal()"><div class="overlay-bg"></div>
-      <div class="modal" onclick="event.stopPropagation()">
-        <div class="modal-hdr"><div class="modal-title">Tambah Tugas</div><button class="modal-close" onclick="closeModal()">✕</button></div>
-        <div class="modal-body">
-          <div class="field"><label>Tugas / Kegiatan</label><input type="text" placeholder="Misal: Soil Test Titik 3" value="${esc(f.task)}" oninput="state.taskForm.task=this.value" /></div>
-          <div class="grid2">
-            <div class="field"><label>Lokasi</label><select onchange="state.taskForm.location=this.value">
-              ${LOCATIONS.map(l=>`<option ${l===f.location?'selected':''}>${l}</option>`).join('')}
-            </select></div>
-            <div class="field"><label>PIC</label><input type="text" placeholder="Nama" value="${esc(f.pic)}" oninput="state.taskForm.pic=this.value" /></div>
-          </div>
-          <div class="field"><label>Deadline</label><input type="date" value="${f.deadline}" onchange="state.taskForm.deadline=this.value" /></div>
-          <div class="field"><label>Catatan (opsional)</label><input type="text" placeholder="Catatan..." value="${esc(f.notes)}" oninput="state.taskForm.notes=this.value" /></div>
-          <button class="btn btn-blue" onclick="if(state.taskForm.task&&state.taskForm.pic) saveTask();">✓ SIMPAN TUGAS</button>
-        </div>
-      </div>
-    </div>`;
-  }
-
-  // Delete Modal
-  if (state.modal === 'delete' && state.deleteTarget) {
-    const d = state.deleteTarget;
-    html += `<div class="overlay" onclick="closeModal()"><div class="overlay-bg"></div>
-      <div class="modal" onclick="event.stopPropagation()">
-        <div class="modal-hdr"><div class="modal-title">Hapus Item?</div><button class="modal-close" onclick="closeModal()">✕</button></div>
-        <div class="modal-body" style="text-align:center;">
-          <div style="font-size:36px;margin-bottom:12px;">🗑️</div>
-          <div style="color:#cbd5e1;">Yakin hapus <strong style="color:#fff;">${esc(d.name)}</strong>?</div>
-          <div style="color:#475569;font-size:12px;margin-top:4px;">Data akan dihapus untuk semua user.</div>
-          <div class="grid2" style="margin-top:16px;">
-            <button class="btn btn-outline" onclick="closeModal()">Batal</button>
-            <button class="btn btn-red" onclick="doDelete()">Ya, Hapus</button>
-          </div>
-        </div>
-      </div>
-    </div>`;
-  }
-
-  // Settings Modal
-  if (state.modal === 'settings') {
-    html += `<div class="overlay" onclick="closeModal()"><div class="overlay-bg"></div>
-      <div class="modal" onclick="event.stopPropagation()">
-        <div class="modal-hdr"><div class="modal-title">⚙ Pengaturan</div><button class="modal-close" onclick="closeModal()">✕</button></div>
-        <div class="modal-body">
-          <div style="font-size:10px;letter-spacing:1px;color:#475569;text-transform:uppercase;margin-bottom:-6px;">Data Shared (semua user)</div>
-          <div class="field"><label>Master Budget (Rp)</label><input type="number" value="${c.masterBudget}" onchange="saveConfig('masterBudget',Number(this.value))" /></div>
-          <div class="field"><label>Dana Cadangan (Rp)</label><input type="number" value="${c.cadangan}" onchange="saveConfig('cadangan',Number(this.value))" /></div>
-          <div class="field"><label>Target Selesai</label><input type="date" value="${c.targetFinish}" onchange="saveConfig('targetFinish',this.value)" /></div>
-          
-          <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:6px;">
-            <div style="font-size:10px;letter-spacing:1px;color:#475569;text-transform:uppercase;margin-bottom:10px;">Data Pribadi</div>
-            <div class="field"><label>Nama Anda</label><input type="text" value="${esc(state.userName)}" onchange="setUserName(this.value.trim()||'User')" /></div>
-          </div>
-
-          <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:6px;">
-            ${state.confirmReset?`
-              <div style="text-align:center;color:var(--red);font-size:13px;font-weight:700;margin-bottom:10px;">⚠️ Semua data shared dikembalikan ke awal!</div>
-              <div class="grid2"><button class="btn btn-outline" onclick="state.confirmReset=false;render();">Batal</button><button class="btn btn-red" onclick="resetAll()">Ya, Reset</button></div>
-            `:`
-              <button class="btn btn-outline" style="border-color:rgba(220,38,38,0.3);color:var(--red);" onclick="state.confirmReset=true;render();">Reset Semua Data Shared</button>
-            `}
-          </div>
-        </div>
-      </div>
-    </div>`;
-  }
-
-  document.getElementById('app').innerHTML = html;
+  h+=`<button class="btn btn-blue" onclick="openTaskForm()">+ TAMBAH TUGAS</button>`;
 }
 
-// ==================== INIT ====================
-render();
+// ========== CHART ==========
+if(S.tab==='chart'){
+  const ds=[];{const st=new Date(c.projectStart),en=new Date(c.targetFinish);for(let d=new Date(st);d<=en;d.setDate(d.getDate()+1))ds.push(d.toISOString().split('T')[0]);}
+  const mx=Math.max(...ds.map(d=>s.dy[d]||0),s.mpd||1,1);
+  h+='<div class="card"><div class="sec">📊 PENGELUARAN HARIAN</div><div class="chart-bars">';
+  ds.forEach(d=>{
+    const v=s.dy[d]||0,hp=mx>0?(v/mx)*100:0,isTd=d===t,isOv=v>s.mpd&&s.mpd>0;
+    const cls=isOv?'over':isTd?'today':v>0?'normal':'empty';
+    const bg=isOv?'var(--red)':isTd?'var(--amber)':v>0?'var(--blue)':'#0a1120';
+    const dn=new Date(d+'T00:00:00').getDate();
+    h+=`<div class="chart-col">${v>0?`<div class="chart-val">${Math.round(v/1e3)}k</div>`:''}
+      <div class="chart-bar" style="height:${Math.max(hp,v>0?6:3)}%;background:${bg}"></div>
+      <div class="chart-dt" style="color:${isTd?'var(--amber)':'var(--dim)'};font-weight:${isTd?900:600}">${dn}</div></div>`;
+  });
+  h+=`</div><div class="chart-legend">
+    <span><span class="legend-dot" style="background:var(--red)"></span>Over</span>
+    <span><span class="legend-dot" style="background:var(--amber)"></span>Hari ini</span>
+    <span><span class="legend-dot" style="background:var(--blue)"></span>Normal</span>
+    <span style="margin-left:auto;font-family:var(--mono)">Jatah: ${rp(s.mpd)}</span>
+  </div></div>`;
+
+  const ce=Object.entries(s.cb).sort((a,b)=>b[1]-a[1]);
+  h+='<div class="card"><div class="sec">🏷 BREAKDOWN KATEGORI</div>';
+  ce.forEach(([cat,v],i)=>{
+    const p=s.tot>0?(v/s.tot*100).toFixed(0):0;
+    h+=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+      <div style="width:14px;height:14px;border-radius:50%;background:${CC[i%CC.length]};flex-shrink:0"></div>
+      <div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700"><span style="color:#CCDDEE">${esc(CS[cat])}</span><span style="color:var(--muted)">${p}%</span></div><div style="font-size:15px;font-family:var(--mono);color:var(--dim);font-weight:700">${rp(v)}</div></div>
+    </div>`;
+  });
+  h+='</div>';
+
+  const bpp=Math.min(s.tot/s.eff*100,100),tpp=Math.min(dd(c.projectStart,t)/dd(c.projectStart,c.targetFinish)*100,100);
+  const over=bpp>tpp;
+  h+=`<div class="card"><div class="sec">⚖ BUDGET vs WAKTU</div>
+    <div class="bar"><div class="bar-head"><span>Budget Terpakai</span><span>${Math.round(bpp)}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${bpp}%;background:${bpp>70?'var(--amber)':'var(--green)'}"></div></div></div>
+    <div class="bar"><div class="bar-head"><span>Waktu Berlalu</span><span>${Math.round(tpp)}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${tpp}%;background:var(--blue)"></div></div></div>
+    <div style="text-align:center;margin-top:14px;padding-top:14px;border-top:2px solid var(--border);font-size:18px;font-weight:800;color:${over?'var(--red)':'var(--green)'}">
+      ${over?'⚠️ Spending LEBIH CEPAT dari waktu!':'✅ Spending seimbang dengan waktu'}
+    </div>
+  </div>`;
+}
+
+// ========== LOG ==========
+if(S.tab==='log'){
+  h+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <div style="font-size:16px;font-weight:800;color:var(--muted);letter-spacing:1px">📝 ${S.expenses.length} TRANSAKSI</div>
+    <div style="font-family:var(--mono);font-size:17px;font-weight:900;color:var(--amber)">Total: ${rp(s.tot)}</div>
+  </div>`;
+  [...S.expenses].reverse().forEach(e=>{
+    h+=`<div class="log"><div style="flex:1;min-width:0"><div class="log-title">${esc(e.detail||e.category)}</div><div class="log-sub">${sd(e.date)} · ${esc(CS[e.category])} · ${e.qty}×${rp(e.price)}</div></div>
+    <div class="log-amt">${rp(e.total)}</div>
+    <button class="del" onclick="confirmDel('expense','${e.id}','${esc(e.detail||e.category)}')">🗑</button></div>`;
+  });
+}
+
+// ========== NOTES ==========
+if(S.tab==='notes'){
+  h+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <div style="font-size:16px;font-weight:800;color:var(--muted)">📌 CATATAN PRIBADI</div>
+    <div style="font-size:14px;color:var(--dim);font-weight:700">Hanya Anda yang lihat</div>
+  </div>
+  <div style="display:flex;gap:10px;margin-bottom:14px">
+    <input type="text" id="ni" placeholder="Tulis catatan..." value="${esc(S.noteInput)}" oninput="S.noteInput=this.value" onkeydown="if(event.key==='Enter')addNote();" style="flex:1;border-radius:12px;padding:14px;font-size:17px;font-weight:700;border:2px solid var(--border);background:#0d1525;color:var(--white);outline:none" />
+    <button class="btn btn-amber" style="width:auto;padding:14px 24px" onclick="addNote()">+</button>
+  </div>`;
+  if(!S.myNotes.length)h+=`<div style="text-align:center;padding:48px 0;color:var(--dim);font-size:16px;font-weight:700">Belum ada catatan</div>`;
+  S.myNotes.forEach(n=>{
+    h+=`<div class="log" style="margin-bottom:8px"><div style="flex:1"><div style="font-size:16px;font-weight:700;line-height:1.4">${esc(n.text)}</div><div class="log-sub">${sd(n.date)} ${n.time}</div></div>
+    <button class="del" onclick="delNote('${n.id}')">🗑</button></div>`;
+  });
+}
+
+h+='</div></div>'; // gap + content
+
+// NAV
+const nv=[{id:'budget',i:'💰',l:'Budget',b:0},{id:'tasks',i:'📋',l:'Tugas',b:ts.od.length},{id:'chart',i:'📊',l:'Grafik',b:0},{id:'log',i:'📝',l:'Log',b:0},{id:'notes',i:'📌',l:'Pribadi',b:0}];
+h+='<div class="nav">';
+nv.forEach(n=>{
+  h+=`<button class="nav-btn ${S.tab===n.id?'on':''}" onclick="setTab('${n.id}')">
+    ${n.b>0?`<span class="nav-badge">${n.b}</span>`:''}
+    <span class="nav-icon">${n.i}</span><span class="nav-lbl">${n.l}</span>
+  </button>`;
+});
+h+='</div>';
+
+// ========== MODALS ==========
+
+// Expense
+if(S.modal==='exp'&&S.expForm){
+  const f=S.expForm,fp=cp(f.category),pr=fp||Number(f.price)||0,tl=pr*(Number(f.qty)||1);
+  h+=`<div class="ov" onclick="closeModal()"><div class="ov-bg"></div><div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hdr"><span class="modal-title">Tambah Pengeluaran</span><button class="modal-x" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>TANGGAL</label><input type="date" value="${f.date}" onchange="S.expForm.date=this.value" /></div>
+      <div class="field"><label>KATEGORI</label><select onchange="S.expForm.category=this.value;S.expForm.price=String(cp(this.value));render();">
+        ${CATEGORIES.map(c=>`<option value="${esc(c.name)}" ${c.name===f.category?'selected':''}>${esc(c.name)}</option>`).join('')}
+      </select></div>
+      <div class="field"><label>DETAIL / KETERANGAN</label><input type="text" placeholder="Misal: Makan siang 6 orang" value="${esc(f.detail)}" oninput="S.expForm.detail=this.value" /></div>
+      <div class="grid2">
+        <div class="field"><label>QTY</label><input type="number" min="1" value="${f.qty}" oninput="S.expForm.qty=this.value;render();" style="text-align:center" /></div>
+        <div class="field"><label>HARGA SATUAN</label><input type="number" value="${fp||f.price}" ${fp?'disabled':''} oninput="S.expForm.price=this.value;render();" style="text-align:center" /></div>
+      </div>
+      <div class="total-box"><div class="total-lbl">TOTAL</div><div class="total-val">${rp(tl)}</div></div>
+      <button class="btn btn-green" onclick="saveExpense()">✓ SIMPAN PENGELUARAN</button>
+    </div>
+  </div></div>`;
+}
+
+// Task
+if(S.modal==='task'&&S.taskForm){
+  const f=S.taskForm;
+  h+=`<div class="ov" onclick="closeModal()"><div class="ov-bg"></div><div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hdr"><span class="modal-title">Tambah Tugas</span><button class="modal-x" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>TUGAS / KEGIATAN</label><input type="text" placeholder="Misal: Soil Test Titik 3" value="${esc(f.task)}" oninput="S.taskForm.task=this.value" /></div>
+      <div class="grid2">
+        <div class="field"><label>LOKASI</label><select onchange="S.taskForm.location=this.value">${LOCS.map(l=>`<option ${l===f.location?'selected':''}>${l}</option>`).join('')}</select></div>
+        <div class="field"><label>PIC</label><input type="text" placeholder="Nama" value="${esc(f.pic)}" oninput="S.taskForm.pic=this.value" /></div>
+      </div>
+      <div class="field"><label>DEADLINE</label><input type="date" value="${f.deadline}" onchange="S.taskForm.deadline=this.value" /></div>
+      <div class="field"><label>CATATAN (OPSIONAL)</label><input type="text" placeholder="Catatan..." value="${esc(f.notes)}" oninput="S.taskForm.notes=this.value" /></div>
+      <button class="btn btn-blue" onclick="if(S.taskForm.task&&S.taskForm.pic)saveTask();">✓ SIMPAN TUGAS</button>
+    </div>
+  </div></div>`;
+}
+
+// Delete
+if(S.modal==='del'&&S.delTarget){
+  const d=S.delTarget;
+  h+=`<div class="ov" onclick="closeModal()"><div class="ov-bg"></div><div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hdr"><span class="modal-title">Hapus Item?</span><button class="modal-x" onclick="closeModal()">✕</button></div>
+    <div class="modal-body" style="text-align:center">
+      <div style="font-size:48px;margin-bottom:14px">🗑️</div>
+      <div style="font-size:18px;font-weight:700">Yakin hapus <strong style="color:#fff">${esc(d.name)}</strong>?</div>
+      <div style="font-size:16px;color:var(--dim);margin-top:6px;font-weight:700">Data dihapus untuk SEMUA user.</div>
+      <div class="grid2" style="margin-top:16px">
+        <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+        <button class="btn btn-red" onclick="doDel()">Ya, Hapus</button>
+      </div>
+    </div>
+  </div></div>`;
+}
+
+// Settings
+if(S.modal==='set'){
+  h+=`<div class="ov" onclick="closeModal()"><div class="ov-bg"></div><div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hdr"><span class="modal-title">⚙ Pengaturan</span><button class="modal-x" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div style="font-size:15px;font-weight:800;color:var(--green);letter-spacing:1px">🔗 DATA SHARED (Semua User)</div>
+      <div class="field"><label>MASTER BUDGET (Rp)</label><input type="number" value="${c.masterBudget}" onchange="saveConfig('masterBudget',Number(this.value))" /></div>
+      <div class="field"><label>DANA CADANGAN (Rp)</label><input type="number" value="${c.cadangan}" onchange="saveConfig('cadangan',Number(this.value))" /></div>
+      <div class="field"><label>TARGET SELESAI</label><input type="date" value="${c.targetFinish}" onchange="saveConfig('targetFinish',this.value)" /></div>
+      <div class="field"><label>MULAI PROYEK</label><input type="date" value="${c.projectStart}" onchange="saveConfig('projectStart',this.value)" /></div>
+      <div style="border-top:2px solid var(--border);padding-top:16px">
+        <div style="font-size:15px;font-weight:800;color:var(--amber);letter-spacing:1px;margin-bottom:10px">📌 DATA PRIBADI</div>
+        <div class="field"><label>NAMA ANDA</label><input type="text" value="${esc(S.userName)}" onchange="setUserName(this.value.trim()||'User')" /></div>
+      </div>
+      <div style="border-top:2px solid var(--border);padding-top:16px">
+        ${S.confirmReset?`
+          <div style="text-align:center;font-size:17px;font-weight:800;color:var(--red);margin-bottom:12px">⚠️ Semua data shared dikembalikan ke awal!</div>
+          <div class="grid2"><button class="btn btn-outline" onclick="S.confirmReset=false;render();">Batal</button><button class="btn btn-red" onclick="doReset()">Ya, Reset</button></div>
+        `:`<button class="btn btn-outline" style="border-color:rgba(255,68,68,.3);color:#FF6666" onclick="S.confirmReset=true;render();">Reset Semua Data Shared</button>`}
+      </div>
+    </div>
+  </div></div>`;
+}
+
+document.getElementById('app').innerHTML=h;
+}
+
+// INIT
+cloudLoad();
 </script>
 </body>
 </html>
