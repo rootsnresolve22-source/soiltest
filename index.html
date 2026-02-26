@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#060b18">
 <title>SoilTest Field Control</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{--bg:#060b18;--card:#0d1a2d;--border:#1e3350;--amber:#FFB020;--green:#00DD66;--red:#FF4444;--blue:#4499FF;--white:#F0F4FF;--muted:#8899AA;--dim:#556677;--font:'Barlow Condensed',sans-serif;--mono:'Courier New',Courier,monospace}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -157,6 +158,14 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.85)}
 .setup-sub{font-size:16px;color:var(--dim);font-weight:700;letter-spacing:2px;margin-bottom:36px}
 
 @media(min-width:640px){.modal{border-radius:24px;border-bottom:2px solid var(--border);max-height:80vh}.ov{align-items:center}}
+
+/* Export button */
+.btn-export{background:linear-gradient(135deg,#0d7c3f,#16a34a);position:relative;overflow:hidden}
+.btn-export::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(transparent,rgba(255,255,255,0.08),transparent);transform:rotate(45deg);animation:exportShine 3s infinite}
+@keyframes exportShine{0%{transform:translateX(-100%) rotate(45deg)}100%{transform:translateX(100%) rotate(45deg)}}
+.export-loading{pointer-events:none;opacity:.7}
+.export-loading::before{content:'⟳ ';animation:spin 1s linear infinite;display:inline-block}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -165,8 +174,8 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.85)}
 // =====================================================
 // JSONBIN.IO CONFIG — ISI SETELAH SETUP
 // =====================================================
-const JSONBIN_API_KEY = '$2a$10$7i9yRFwNMiSNY5sc0b5uwuH1PsuGNWGd7aGXWF43cHHGahyl.8Hxy';
-const JSONBIN_BIN_ID  = '699c286cd0ea881f40d18b65';
+const JSONBIN_API_KEY = '$2a$10$GANTI_DENGAN_API_KEY_ANDA';
+const JSONBIN_BIN_ID  = 'GANTI_DENGAN_BIN_ID_ANDA';
 // =====================================================
 
 const CATEGORIES=[
@@ -433,6 +442,7 @@ if(S.tab==='budget'){
     h+='</div>';
   }
   h+=`<button class="btn btn-amber" onclick="openExpForm()">+ TAMBAH PENGELUARAN</button>`;
+  h+=`<button id="export-btn" class="btn btn-export" onclick="exportExcel()" style="margin-top:4px">📥 EXPORT RECAP EXCEL</button>`;
 }
 
 // ========== TASKS ==========
@@ -648,6 +658,139 @@ if(S.modal==='set'){
 }
 
 document.getElementById('app').innerHTML=h;
+}
+
+// =====================================================
+// EXPORT EXCEL
+// =====================================================
+function exportExcel(){
+  if(typeof XLSX==='undefined'){alert('Library Excel belum dimuat. Pastikan HP terhubung internet, lalu refresh halaman.');return;}
+  
+  // Show loading state
+  const btn=document.getElementById('export-btn');
+  if(btn){btn.classList.add('export-loading');btn.textContent='Generating Excel...';}
+
+  setTimeout(()=>{
+  try{
+    const s=calcStats(),ts=calcTaskStats(),c=S.config,t=td();
+    const wb=XLSX.utils.book_new();
+
+    // ===== SHEET 1: DASHBOARD =====
+    const dash=[];
+    dash.push(['SOIL TEST — RECAP DASHBOARD']);
+    dash.push(['Generated:',new Date().toLocaleString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})]);
+    dash.push(['User:',S.userName]);
+    dash.push([]);
+    dash.push(['═══ POSISI KEUANGAN ═══']);
+    dash.push(['Master Budget',c.masterBudget]);
+    dash.push(['Dana Cadangan (Ditahan)',c.cadangan]);
+    dash.push(['Budget Efektif',s.eff]);
+    dash.push(['Total Terpakai',s.tot]);
+    dash.push(['SISA DANA EFEKTIF',s.rem]);
+    dash.push(['Status Saldo',s.rem<1e6?'⚠ BAHAYA: TOP UP!':'✓ AMAN']);
+    dash.push([]);
+    dash.push(['═══ PREDIKSI (FORECAST) ═══']);
+    dash.push(['Rata-rata Pengeluaran/Hari',Math.round(s.avg)]);
+    dash.push(['Sisa Hari ke Target',s.dl]);
+    dash.push(['Maks Jatah Per Hari',Math.round(s.mpd)]);
+    dash.push(['Estimasi Uang Habis',s.ef.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})]);
+    dash.push(['Target Selesai',new Date(c.targetFinish+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})]);
+    dash.push(['Status Kelangsungan',s.safe?'✓ DANA CUKUP':'⚠ TIDAK CUKUP!']);
+    dash.push([]);
+    dash.push(['═══ SARAN PERBAIKAN ═══']);
+    if(s.avg>s.mpd&&s.mpd>0){
+      dash.push(['WAJIB KURANGI BIAYA/HARI',Math.round(s.avg-s.mpd)]);
+      dash.push(['KESIMPULAN','BOROS! Kurangi pengeluaran.']);
+    }else{
+      dash.push(['KESIMPULAN','AMAN TERKENDALI']);
+    }
+    dash.push([]);
+    dash.push(['═══ PROGRESS TUGAS ═══']);
+    dash.push(['Total Tugas Aktif',ts.ac.length]);
+    dash.push(['Tugas Overdue',ts.od.length]);
+    dash.push(['Tugas Selesai',ts.dn.length]);
+    dash.push(['% Progress',ts.tl>0?Math.round(ts.dn.length/ts.tl*100)+'%':'0%']);
+    dash.push([]);
+    dash.push(['═══ BREAKDOWN PER KATEGORI ═══']);
+    dash.push(['Kategori','Total (Rp)','Persentase']);
+    Object.entries(s.cb).sort((a,b)=>b[1]-a[1]).forEach(([cat,v])=>{
+      dash.push([cat,v,s.tot>0?(v/s.tot*100).toFixed(1)+'%':'0%']);
+    });
+    dash.push([]);
+    dash.push(['═══ MONITORING EXPENSE/HARI ═══']);
+    dash.push(['Tanggal','Total Expense','Status']);
+    const allD=[];{const st=new Date(c.projectStart),en=new Date(c.targetFinish);for(let d=new Date(st);d<=en;d.setDate(d.getDate()+1))allD.push(d.toISOString().split('T')[0]);}
+    allD.forEach(d=>{
+      const v=s.dy[d]||0;
+      const dt=new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+      dash.push([dt,v,v>s.mpd&&s.mpd>0&&v>0?'⚠ OVER':'OK']);
+    });
+
+    const ws1=XLSX.utils.aoa_to_sheet(dash);
+    // Column widths
+    ws1['!cols']=[{wch:35},{wch:22},{wch:15}];
+    XLSX.utils.book_append_sheet(wb,ws1,'Dashboard');
+
+    // ===== SHEET 2: DATA PENGELUARAN =====
+    const expRows=[['NO','TANGGAL','KATEGORI','DETAIL / KETERANGAN','QTY','HARGA SATUAN','TOTAL']];
+    S.expenses.forEach((e,i)=>{
+      expRows.push([
+        i+1,
+        new Date(e.date+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}),
+        e.category,
+        e.detail,
+        e.qty,
+        e.price,
+        e.total
+      ]);
+    });
+    // Total row
+    const totalExp=S.expenses.reduce((a,e)=>a+e.total,0);
+    expRows.push([]);
+    expRows.push(['','','','','','GRAND TOTAL:',totalExp]);
+
+    const ws2=XLSX.utils.aoa_to_sheet(expRows);
+    ws2['!cols']=[{wch:5},{wch:18},{wch:38},{wch:30},{wch:6},{wch:16},{wch:16}];
+    XLSX.utils.book_append_sheet(wb,ws2,'Data Pengeluaran');
+
+    // ===== SHEET 3: DATA TUGAS =====
+    const taskRows=[['NO','TANGGAL','TUGAS / KEGIATAN','LOKASI','PIC','DEADLINE','STATUS','CATATAN']];
+    S.tasks.forEach((t,i)=>{
+      const isOD=t.status!=='Selesai'&&t.status!=='Batal'&&t.deadline<td();
+      taskRows.push([
+        i+1,
+        new Date(t.date+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}),
+        t.task,
+        t.location,
+        t.pic,
+        new Date(t.deadline+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}),
+        t.status+(isOD?' ⚠ OVERDUE':''),
+        t.notes
+      ]);
+    });
+
+    const ws3=XLSX.utils.aoa_to_sheet(taskRows);
+    ws3['!cols']=[{wch:5},{wch:18},{wch:35},{wch:16},{wch:14},{wch:18},{wch:22},{wch:30}];
+    XLSX.utils.book_append_sheet(wb,ws3,'Data Tugas');
+
+    // Generate filename with timestamp
+    const now=new Date();
+    const pad=n=>String(n).padStart(2,'0');
+    const fname='Recap_SoilTest_'+pad(now.getDate())+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()]+now.getFullYear()+'_'+pad(now.getHours())+pad(now.getMinutes())+'.xlsx';
+
+    // Download
+    XLSX.writeFile(wb,fname);
+
+    // Success feedback
+    if(btn){btn.classList.remove('export-loading');btn.textContent='✅ BERHASIL! File: '+fname;}
+    setTimeout(()=>{if(btn){btn.classList.remove('export-loading');btn.textContent='📥 EXPORT RECAP EXCEL';}},4000);
+
+  }catch(err){
+    console.error('Export error:',err);
+    alert('Gagal export: '+err.message+'\n\nPastikan HP terhubung internet.');
+    if(btn){btn.classList.remove('export-loading');btn.textContent='📥 EXPORT RECAP EXCEL';}
+  }
+  },100); // setTimeout to allow UI update
 }
 
 // INIT
