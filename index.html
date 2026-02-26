@@ -4,796 +4,272 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#060b18">
+<meta name="theme-color" content="#1a2332">
 <title>SoilTest Field Control</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-:root{--bg:#060b18;--card:#0d1a2d;--border:#1e3350;--amber:#FFB020;--green:#00DD66;--red:#FF4444;--blue:#4499FF;--white:#F0F4FF;--muted:#8899AA;--dim:#556677;--font:'Barlow Condensed',sans-serif;--mono:'Courier New',Courier,monospace}
+:root{--bg:#1a2332;--card:#243347;--cardb:#2a3d55;--border:#3d5a78;--amber:#FFB833;--green:#33DD77;--red:#FF5555;--blue:#55AAFF;--purple:#BB88FF;--white:#F2F6FC;--text:#D8E4F0;--muted:#92A8BE;--dim:#6E899F;--font:'Barlow Condensed',sans-serif;--mono:'Courier New',Courier,monospace;--radius:14px}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:var(--white);font-family:var(--font);font-size:16px;min-height:100vh;overflow-x:hidden}
-input,select,button,textarea{font-family:var(--font);font-size:17px}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;min-height:100vh;overflow-x:hidden}
+input,select,button,textarea{font-family:var(--font);font-size:17px;color:var(--white)}
 input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.85)}
+input[type="password"]{letter-spacing:2px}
 ::-webkit-scrollbar{display:none}
-
-.hdr{position:sticky;top:0;z-index:90;background:rgba(6,11,24,0.97);backdrop-filter:blur(10px);border-bottom:2px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
-.hdr h1{font-size:22px;font-weight:900;color:var(--amber);font-family:var(--mono);letter-spacing:1px}
+.hdr{position:sticky;top:0;z-index:90;background:rgba(26,35,50,0.97);backdrop-filter:blur(10px);border-bottom:2px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.hdr h1{font-size:21px;font-weight:900;color:var(--amber);font-family:var(--mono);letter-spacing:1px}
 .hdr-sub{font-size:13px;letter-spacing:3px;color:var(--dim);font-weight:700}
 .hdr-right{text-align:right}
 .hdr-date{font-size:15px;color:var(--muted);font-weight:700}
 .hdr-days{font-size:17px;font-weight:900;font-family:var(--mono)}
 .hdr-days.urgent{color:var(--red);animation:pulse 2s infinite}
-.gear{width:44px;height:44px;border-radius:12px;border:2px solid var(--border);background:transparent;color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-left:10px;flex-shrink:0}
-.gear:active{background:var(--card)}
-
+.ibtn{width:44px;height:44px;border-radius:12px;border:2px solid var(--border);background:transparent;color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ibtn:active{background:var(--card)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 @keyframes slideUp{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
 .anim{animation:slideUp .25s ease-out}
-
 .content{padding:14px 16px 110px}
 .gap{display:flex;flex-direction:column;gap:14px}
-
-/* Alert */
-.alert{border-radius:14px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
-.alert.danger{background:#3D1111;border-left:5px solid var(--red)}
-.alert.warning{background:#3D2E0A;border-left:5px solid var(--amber)}
+.alert{border-radius:var(--radius);padding:14px 16px;display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.alert.danger{background:rgba(255,85,85,0.12);border-left:5px solid var(--red)}
+.alert.warning{background:rgba(255,184,51,0.12);border-left:5px solid var(--amber)}
 .alert-icon{font-size:22px;flex-shrink:0}
 .alert-title{font-size:17px;font-weight:800}
-.alert.danger .alert-title{color:#FF7777}
-.alert.warning .alert-title{color:#FFD060}
-.alert-msg{font-size:15px;color:#CCDDEE;margin-top:3px;line-height:1.5;font-weight:600}
-
-/* Cards */
-.card{background:var(--card);border:2px solid var(--border);border-radius:16px;padding:16px}
+.alert.danger .alert-title{color:var(--red)}
+.alert.warning .alert-title{color:var(--amber)}
+.alert-msg{font-size:15px;color:var(--text);margin-top:3px;line-height:1.5;font-weight:600}
+.card{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:16px}
 .card-label{font-size:14px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:5px}
 .card-value{font-family:var(--mono);font-size:22px;font-weight:900}
 .card-sub{font-size:14px;color:var(--dim);margin-top:4px;font-weight:700}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-
-/* Gauge */
 .gauge{display:flex;flex-direction:column;align-items:center;padding:10px 0}
 .gauge-lbl{font-size:15px;color:var(--muted);font-weight:700;letter-spacing:2px}
 .gauge-val{font-family:var(--mono);font-size:28px;font-weight:900}
-
-/* Bar */
 .bar{margin-bottom:14px}
-.bar-head{display:flex;justify-content:space-between;font-size:16px;font-weight:700;color:#BBCCDD;margin-bottom:6px}
-.bar-track{height:12px;background:#0a1120;border-radius:99px;overflow:hidden}
+.bar-head{display:flex;justify-content:space-between;font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px}
+.bar-track{height:12px;background:rgba(0,0,0,0.2);border-radius:99px;overflow:hidden}
 .bar-fill{height:100%;border-radius:99px;transition:width .8s}
-
-/* Section label */
 .sec{font-size:15px;font-weight:800;color:var(--muted);letter-spacing:2px;margin-bottom:12px}
-
-/* Buttons */
-.btn{width:100%;padding:18px;border-radius:16px;border:none;font-size:18px;font-weight:800;cursor:pointer;color:#fff;letter-spacing:.5px;font-family:var(--font)}
+.btn{width:100%;padding:18px;border-radius:var(--radius);border:none;font-size:18px;font-weight:800;cursor:pointer;color:#fff;letter-spacing:.5px;font-family:var(--font);transition:transform .1s}
 .btn:active{transform:scale(.98)}
 .btn:disabled{opacity:.35;pointer-events:none}
-.btn-amber{background:#D97706}
+.btn-amber{background:#C87A06}
 .btn-blue{background:#2563eb}
 .btn-green{background:#16a34a}
 .btn-red{background:#dc2626}
+.btn-purple{background:#7c3aed}
 .btn-outline{background:transparent;border:2px solid var(--border);color:var(--muted)}
-
-/* Chips */
+.btn-export{background:linear-gradient(135deg,#0d7c3f,#16a34a)}
 .chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
 .chip{padding:10px 16px;border-radius:12px;font-size:15px;font-weight:700;white-space:nowrap;cursor:pointer;flex-shrink:0;border:2px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font)}
-.chip.on{background:#D97706;color:#fff;border-color:#D97706}
-
-/* Task */
-.task{border-radius:16px;padding:14px;border:2px solid var(--border);background:var(--card);display:flex;align-items:flex-start;gap:14px}
-.task.od{border-color:rgba(255,68,68,.45);background:rgba(61,17,17,.35)}
+.chip.on{background:#C87A06;color:#fff;border-color:#C87A06}
+.task{border-radius:var(--radius);padding:14px;border:2px solid var(--border);background:var(--card);display:flex;align-items:flex-start;gap:14px}
+.task.od{border-color:rgba(255,85,85,.4);background:rgba(255,85,85,.06)}
 .sbtn{width:52px;height:52px;border-radius:50%;border:none;color:#fff;font-size:24px;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .sbtn:active{transform:scale(.88)}
-.sbtn.done{background:#16a34a;box-shadow:0 0 0 4px rgba(22,163,74,.25)}
-.sbtn.prog{background:#D97706;box-shadow:0 0 0 4px rgba(217,119,6,.25)}
-.sbtn.pend{background:#475569;box-shadow:0 0 0 4px rgba(71,85,105,.25)}
-.task-name{font-size:17px;font-weight:700;line-height:1.35}
+.sbtn.done{background:#16a34a;box-shadow:0 0 0 4px rgba(22,163,74,.2)}
+.sbtn.prog{background:#C87A06;box-shadow:0 0 0 4px rgba(200,122,6,.2)}
+.sbtn.pend{background:#5a7088;box-shadow:0 0 0 4px rgba(90,112,136,.2)}
+.task-name{font-size:17px;font-weight:700;line-height:1.35;color:var(--white)}
 .task-name.fin{text-decoration:line-through;color:var(--dim)}
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .tag{font-size:14px;padding:4px 10px;border-radius:8px;border:2px solid var(--border);color:var(--muted);font-weight:700}
-.tag.od{border-color:rgba(255,68,68,.4);color:#FF7777}
+.tag.od{border-color:rgba(255,85,85,.4);color:var(--red)}
 .task-note{font-size:15px;color:var(--dim);font-style:italic;margin-top:6px;font-weight:600}
-.del{background:none;border:none;color:#2a3a50;font-size:20px;cursor:pointer;padding:6px;flex-shrink:0}
+.del{background:none;border:none;color:var(--border);font-size:20px;cursor:pointer;padding:6px;flex-shrink:0}
 .del:active{color:var(--red)}
-
-/* Log */
-.log{border-radius:14px;padding:14px;border:2px solid var(--border);background:var(--card);display:flex;align-items:center;gap:12px}
-.log-title{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.log{border-radius:var(--radius);padding:14px;border:2px solid var(--border);background:var(--card);display:flex;align-items:center;gap:12px}
+.log-title{font-size:16px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .log-sub{font-size:14px;color:var(--dim);font-weight:600}
 .log-amt{font-family:var(--mono);font-size:17px;font-weight:900;color:var(--amber);white-space:nowrap}
-
-/* Nav */
-.nav{position:fixed;bottom:0;left:0;right:0;z-index:90;background:rgba(6,11,24,.97);backdrop-filter:blur(10px);border-top:2px solid var(--border);display:flex;justify-content:space-around;padding:6px 4px 12px}
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:90;background:rgba(26,35,50,.97);backdrop-filter:blur(10px);border-top:2px solid var(--border);display:flex;justify-content:space-around;padding:6px 4px 12px}
 .nav-btn{display:flex;flex-direction:column;align-items:center;padding:8px 10px;border-radius:14px;cursor:pointer;border:none;background:transparent;color:var(--dim);font-family:var(--font);position:relative}
-.nav-btn.on{color:var(--amber);background:rgba(255,176,32,.08)}
+.nav-btn.on{color:var(--amber);background:rgba(255,184,51,.1)}
 .nav-btn:active{transform:scale(.95)}
 .nav-icon{font-size:24px}
 .nav-lbl{font-size:12px;font-weight:800;letter-spacing:.5px;margin-top:2px}
 .nav-badge{position:absolute;top:-2px;right:0;min-width:20px;height:20px;border-radius:50%;background:var(--red);color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center}
-
-/* Modal */
 .ov{position:fixed;inset:0;z-index:200;display:flex;align-items:flex-end;justify-content:center}
-.ov-bg{position:absolute;inset:0;background:rgba(0,0,0,.75)}
-.modal{position:relative;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;background:#0a1120;border-radius:24px 24px 0 0;border:2px solid var(--border);border-bottom:none}
-.modal-hdr{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:2px solid var(--border);background:#0a1120}
-.modal-title{font-size:20px;font-weight:900}
+.ov-bg{position:absolute;inset:0;background:rgba(0,0,0,.6)}
+.modal{position:relative;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;background:#1e2d3d;border-radius:24px 24px 0 0;border:2px solid var(--border);border-bottom:none}
+.modal-hdr{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:2px solid var(--border);background:#1e2d3d}
+.modal-title{font-size:20px;font-weight:900;color:var(--white)}
 .modal-x{width:44px;height:44px;border-radius:50%;border:none;background:var(--border);color:var(--muted);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .modal-body{padding:20px;display:flex;flex-direction:column;gap:16px}
 .field label{display:block;font-size:14px;font-weight:800;color:var(--muted);margin-bottom:6px;letter-spacing:1px}
-.field input,.field select{width:100%;border-radius:12px;padding:14px;font-size:17px;font-weight:700;border:2px solid var(--border);background:#0d1525;color:var(--white);outline:none;font-family:var(--font)}
+.field input,.field select{width:100%;border-radius:12px;padding:14px;font-size:17px;font-weight:700;border:2px solid var(--border);background:var(--cardb);color:var(--white);outline:none;font-family:var(--font)}
 .field input:focus,.field select:focus{border-color:var(--amber)}
 .field input:disabled{opacity:.5}
-.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238899AA' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px}
-.total-box{border-radius:16px;padding:16px;text-align:center;border:2px solid rgba(217,119,6,.2);background:rgba(217,119,6,.04)}
+.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2392A8BE' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px}
+.total-box{border-radius:var(--radius);padding:16px;text-align:center;border:2px solid rgba(255,184,51,.2);background:rgba(255,184,51,.05)}
 .total-lbl{font-size:14px;font-weight:700;color:var(--muted);letter-spacing:2px}
 .total-val{font-family:var(--mono);font-size:30px;font-weight:900;color:var(--amber)}
-
-/* Sync status */
 .sync{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:10px;font-size:14px;font-weight:700}
-.sync.ok{background:rgba(0,221,102,.12);border:1px solid rgba(0,221,102,.3);color:var(--green)}
-.sync.off{background:rgba(255,68,68,.12);border:1px solid rgba(255,68,68,.3);color:var(--red)}
-.sync.load{background:rgba(68,153,255,.12);border:1px solid rgba(68,153,255,.3);color:var(--blue)}
-
-/* Chart */
+.sync.ok{background:rgba(51,221,119,.1);border:1px solid rgba(51,221,119,.25);color:var(--green)}
+.sync.off{background:rgba(255,85,85,.1);border:1px solid rgba(255,85,85,.25);color:var(--red)}
+.sync.load{background:rgba(85,170,255,.1);border:1px solid rgba(85,170,255,.25);color:var(--blue)}
 .chart-bars{display:flex;align-items:flex-end;gap:3px;height:160px}
 .chart-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
 .chart-val{font-size:10px;font-family:var(--mono);color:var(--muted);font-weight:800;margin-bottom:3px}
-.chart-bar{width:100%;border-radius:3px 3px 0 0;transition:height .6s;min-height:2px}
 .chart-dt{font-size:10px;margin-top:4px;font-weight:700}
 .chart-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;color:var(--muted);font-weight:700;margin-top:12px;padding-top:10px;border-top:2px solid var(--border);align-items:center}
 .legend-dot{width:14px;height:8px;border-radius:2px;display:inline-block;margin-right:4px}
-
-/* Mini stat */
-.mstat{border-radius:14px;padding:10px;text-align:center;border:2px solid var(--border);background:var(--card)}
+.mstat{border-radius:var(--radius);padding:10px;text-align:center;border:2px solid var(--border);background:var(--card)}
 .mstat-n{font-family:var(--mono);font-size:24px;font-weight:900}
 .mstat-l{font-size:13px;font-weight:700;color:var(--dim);letter-spacing:1px}
-
-/* Setup screen */
-.setup{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;flex-direction:column}
-.setup-box{max-width:400px;width:100%;text-align:center}
-.setup-icon{font-size:56px;margin-bottom:16px}
-.setup-title{font-size:28px;font-weight:900;color:var(--amber);font-family:var(--mono);margin-bottom:4px}
-.setup-sub{font-size:16px;color:var(--dim);font-weight:700;letter-spacing:2px;margin-bottom:36px}
-
+.proj-card{background:var(--card);border:2px solid var(--border);border-radius:18px;padding:20px;cursor:pointer;transition:all .15s}
+.proj-card:active{transform:scale(.98);border-color:var(--amber)}
+.proj-card h3{font-size:20px;font-weight:800;color:var(--white);margin-bottom:6px}
+.proj-card p{font-size:15px;color:var(--muted);font-weight:600}
+.proj-badge{display:inline-block;padding:4px 12px;border-radius:8px;font-size:13px;font-weight:700;margin-top:8px}
+.role-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:8px;font-size:13px;font-weight:800;letter-spacing:1px}
+.role-badge.admin{background:rgba(187,136,255,.15);border:1px solid rgba(187,136,255,.3);color:var(--purple)}
+.role-badge.user{background:rgba(85,170,255,.1);border:1px solid rgba(85,170,255,.25);color:var(--blue)}
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.login-box{max-width:400px;width:100%;text-align:center}
 @media(min-width:640px){.modal{border-radius:24px;border-bottom:2px solid var(--border);max-height:80vh}.ov{align-items:center}}
-
-/* Export button */
-.btn-export{background:linear-gradient(135deg,#0d7c3f,#16a34a);position:relative;overflow:hidden}
-.btn-export::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(transparent,rgba(255,255,255,0.08),transparent);transform:rotate(45deg);animation:exportShine 3s infinite}
-@keyframes exportShine{0%{transform:translateX(-100%) rotate(45deg)}100%{transform:translateX(100%) rotate(45deg)}}
-.export-loading{pointer-events:none;opacity:.7}
-.export-loading::before{content:'⟳ ';animation:spin 1s linear infinite;display:inline-block}
-@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
-// =====================================================
-// JSONBIN.IO CONFIG — ISI SETELAH SETUP
-// =====================================================
-const JSONBIN_API_KEY = '$2a$10$7i9yRFwNMiSNY5sc0b5uwuH1PsuGNWGd7aGXWF43cHHGahyl.8Hxy';
-const JSONBIN_BIN_ID  = '699c286cd0ea881f40d18b65';
-// =====================================================
-
-const CATEGORIES=[
-{name:'Konsumsi Helper',price:20000},
-{name:'Fee Pengawas (RT, RW, Tokoh Pemuda)',price:170000},
-{name:'Fee Penjaga Malam/Pemilik Lahan',price:120000},
-{name:'Sewa Alat (Jika Ada)',price:0},
-{name:'Bahan Bakar/Transport',price:0},
-{name:'Lain-lain',price:0}];
-const LOCS=['Mainroad','Interchange','Jembatan','Access Road','Base Camp','Lainnya'];
-const CS={'Konsumsi Helper':'Konsumsi','Fee Pengawas (RT, RW, Tokoh Pemuda)':'Fee Pengawas','Fee Penjaga Malam/Pemilik Lahan':'Fee Penjaga','Sewa Alat (Jika Ada)':'Sewa Alat','Bahan Bakar/Transport':'BBM/Transport','Lain-lain':'Lain-lain'};
-const CC=['#4499FF','#FFB020','#AA66FF','#FF4444','#00DD66','#FF66AA'];
-const cp=n=>(CATEGORIES.find(c=>c.name===n)||{}).price||0;
-
-const SEED={
-config:{masterBudget:5200000,cadangan:500000,targetFinish:'2026-02-27',projectStart:'2026-02-17'},
-expenses:[
+var JSONBIN_API_KEY='$2a$10$7i9yRFwNMiSNY5sc0b5uwuH1PsuGNWGd7aGXWF43cHHGahyl.8Hxy';
+var JSONBIN_BIN_ID='699c286cd0ea881f40d18b65';
+var ADMIN_PASSWORD='adminmeg123';
+var CATEGORIES=[{name:'Konsumsi Helper',price:20000},{name:'Fee Pengawas (RT, RW, Tokoh Pemuda)',price:170000},{name:'Fee Penjaga Malam/Pemilik Lahan',price:120000},{name:'Sewa Alat (Jika Ada)',price:0},{name:'Bahan Bakar/Transport',price:0},{name:'Lain-lain',price:0}];
+var LOCS=['Mainroad','Interchange','Jembatan','Access Road','Base Camp','Lainnya'];
+var CS={'Konsumsi Helper':'Konsumsi','Fee Pengawas (RT, RW, Tokoh Pemuda)':'Fee Pengawas','Fee Penjaga Malam/Pemilik Lahan':'Fee Penjaga','Sewa Alat (Jika Ada)':'Sewa Alat','Bahan Bakar/Transport':'BBM/Transport','Lain-lain':'Lain-lain'};
+var CC=['#55AAFF','#FFB833','#BB88FF','#FF5555','#33DD77','#FF88AA'];
+function cp(n){var c=CATEGORIES.find(function(x){return x.name===n});return c?c.price:0;}
+var DEFAULT_CFG={masterBudget:5200000,cadangan:500000,targetFinish:'2026-06-30',projectStart:'2026-02-17'};
+var SEED_PROJECTS={
+'plts-res':{name:'PLTS PT. RES',config:{masterBudget:5200000,cadangan:500000,targetFinish:'2026-02-27',projectStart:'2026-02-17'},expenses:[
 {id:'e1',date:'2026-02-17',category:'Konsumsi Helper',detail:'Makan Siang 6 Org',qty:6,price:20000,total:120000},
 {id:'e2',date:'2026-02-17',category:'Fee Pengawas (RT, RW, Tokoh Pemuda)',detail:'1 Orang Tokoh Pemuda',qty:1,price:170000,total:170000},
 {id:'e3',date:'2026-02-17',category:'Lain-lain',detail:'Oprasional',qty:1,price:212000,total:212000},
 {id:'e4',date:'2026-02-18',category:'Konsumsi Helper',detail:'Makan Siang 9 Org',qty:9,price:20000,total:180000},
 {id:'e5',date:'2026-02-18',category:'Fee Pengawas (RT, RW, Tokoh Pemuda)',detail:'3 Orang',qty:3,price:170000,total:510000},
 {id:'e6',date:'2026-02-18',category:'Fee Penjaga Malam/Pemilik Lahan',detail:'1 Orang Patroli',qty:1,price:120000,total:120000},
-{id:'e7',date:'2026-02-18',category:'Lain-lain',detail:'Konsumsi Oprasional',qty:1,price:88000,total:88000}],
-tasks:[
+{id:'e7',date:'2026-02-18',category:'Lain-lain',detail:'Konsumsi Oprasional',qty:1,price:88000,total:88000}],tasks:[
 {id:'t1',date:'2026-02-17',task:'Soil Test Titik 1 - Boring',location:'Mainroad',pic:'Andi',deadline:'2026-02-18',status:'Selesai',notes:''},
 {id:'t2',date:'2026-02-17',task:'Bayar Fee Pengawas RT',location:'Mainroad',pic:'Budi',deadline:'2026-02-17',status:'Selesai',notes:'Sudah dibayar tunai'},
 {id:'t3',date:'2026-02-18',task:'Soil Test Titik 2 - DCP',location:'Interchange',pic:'Andi',deadline:'2026-02-19',status:'Dalam Proses',notes:'Alat sedang dikirim'},
 {id:'t4',date:'2026-02-19',task:'Ambil Sampel Tanah Lab',location:'Mainroad',pic:'Citra',deadline:'2026-02-20',status:'Belum Mulai',notes:'Perlu cooler box'},
 {id:'t5',date:'2026-02-19',task:'Bayar Konsumsi Helper',location:'Base Camp',pic:'Budi',deadline:'2026-02-19',status:'Belum Mulai',notes:'9 orang x Rp20.000'},
-{id:'t6',date:'2026-02-20',task:'Laporan Harian ke PM',location:'Base Camp',pic:'Andi',deadline:'2026-02-20',status:'Belum Mulai',notes:''}]
+{id:'t6',date:'2026-02-20',task:'Laporan Harian ke PM',location:'Base Camp',pic:'Andi',deadline:'2026-02-20',status:'Belum Mulai',notes:''}]},
+'plts-sae':{name:'PLTS PT. SAE',config:JSON.parse(JSON.stringify(DEFAULT_CFG)),expenses:[],tasks:[]},
+'food-estate':{name:'Food Estate',config:JSON.parse(JSON.stringify(DEFAULT_CFG)),expenses:[],tasks:[]},
+'barelang-park':{name:'Barelang Park',config:JSON.parse(JSON.stringify(DEFAULT_CFG)),expenses:[],tasks:[]}
 };
-
-// Utils
-const fmt=n=>new Intl.NumberFormat('id-ID').format(Math.round(n));
-const rp=n=>'Rp '+fmt(n);
-const td=()=>new Date().toISOString().split('T')[0];
-const dd=(a,b)=>Math.ceil((new Date(b)-new Date(a))/864e5);
-const sd=d=>new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short'});
-const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-
-// State
-let S={expenses:[...SEED.expenses],tasks:[...SEED.tasks],config:{...SEED.config},
-userName:localStorage.getItem('st_name')||'',myNotes:JSON.parse(localStorage.getItem('st_notes')||'[]'),
-tab:'budget',taskFilter:'active',modal:null,expForm:null,taskForm:null,delTarget:null,
-confirmReset:false,syncStatus:'load',noteInput:'',setupDone:false};
-
-// =====================================================
-// JSONBIN SYNC
-// =====================================================
-const API='https://api.jsonbin.io/v3/b/'+JSONBIN_BIN_ID;
-const HDRS={'Content-Type':'application/json','X-Master-Key':JSONBIN_API_KEY};
-let saving=false;
-
+var fmt=function(n){return new Intl.NumberFormat('id-ID').format(Math.round(n));};
+var rp=function(n){return'Rp '+fmt(n);};
+var td=function(){return new Date().toISOString().split('T')[0];};
+var ddf=function(a,b){return Math.ceil((new Date(b)-new Date(a))/864e5);};
+var sd=function(d){return new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short'});};
+var uid=function(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);};
+var esc=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');};
+var S={projects:{},page:'login',userName:localStorage.getItem('st_name')||'',isAdmin:false,currentProject:null,myNotes:JSON.parse(localStorage.getItem('st_notes')||'[]'),tab:'budget',taskFilter:'active',modal:null,expForm:null,taskForm:null,delTarget:null,confirmReset:false,syncStatus:'load',noteInput:'',loginPass:'',loginName:'',loginError:'',newProjId:'',newProjName:''};
+var API_URL='https://api.jsonbin.io/v3/b/'+JSONBIN_BIN_ID;
+var saving=false;
 async function cloudLoad(){
-  if(JSONBIN_BIN_ID.includes('GANTI')){S.syncStatus='off';return;}
-  try{
-    S.syncStatus='load';render();
-    const r=await fetch(API+'/latest',{headers:{'X-Master-Key':JSONBIN_API_KEY}});
-    if(!r.ok)throw new Error(r.status);
-    const j=await r.json();
-    const d=j.record||j;
-    if(d.config)S.config=d.config;
-    if(d.expenses)S.expenses=d.expenses;
-    if(d.tasks)S.tasks=d.tasks;
-    S.syncStatus='ok';
-  }catch(e){console.error('Load err:',e);S.syncStatus='off';}
-  render();
-}
-
-async function cloudSave(){
-  if(JSONBIN_BIN_ID.includes('GANTI')||saving)return;
-  saving=true;
-  try{
-    const body=JSON.stringify({config:S.config,expenses:S.expenses,tasks:S.tasks});
-    const r=await fetch(API,{method:'PUT',headers:HDRS,body});
-    if(!r.ok)throw new Error(r.status);
-    S.syncStatus='ok';
-  }catch(e){console.error('Save err:',e);S.syncStatus='off';}
-  saving=false;
-}
-
-// Auto refresh every 30s
-setInterval(()=>{if(!saving&&S.modal===null)cloudLoad();},30000);
-
-// =====================================================
-// CALCULATIONS
-// =====================================================
-function calcStats(){
-  const e=S.expenses,c=S.config,t=td();
-  const tot=e.reduce((s,x)=>s+x.total,0);
-  const eff=c.masterBudget-c.cadangan,rem=eff-tot;
-  const dates=[...new Set(e.map(x=>x.date))].sort();
-  const nd=dates.length||1,avg=tot/nd;
-  const dl=Math.max(0,dd(t,c.targetFinish));
-  const mpd=dl>0?rem/dl:0;
-  const edl=avg>0?rem/avg:999;
-  const ef=new Date();ef.setDate(ef.getDate()+Math.floor(edl));
-  const dy={};e.forEach(x=>{dy[x.date]=(dy[x.date]||0)+x.total;});
-  const cb={};e.forEach(x=>{cb[x.category]=(cb[x.category]||0)+x.total;});
-  const te=dy[t]||0;
-  return{tot,eff,rem,avg,dl,mpd,ef,dy,cb,te,safe:ef>=new Date(c.targetFinish)};
-}
-
-function calcTaskStats(){
-  const t=S.tasks,d=td();
-  const od=t.filter(x=>x.status!=='Selesai'&&x.status!=='Batal'&&x.deadline<d);
-  const tt=t.filter(x=>x.deadline===d&&x.status!=='Selesai'&&x.status!=='Batal');
-  const ac=t.filter(x=>x.status==='Belum Mulai'||x.status==='Dalam Proses');
-  const dn=t.filter(x=>x.status==='Selesai');
-  const tl=t.filter(x=>x.status!=='Batal').length;
-  return{od,tt,ac,dn,tl};
-}
-
-function getAlerts(s,ts){
-  const a=[],c=S.config;
-  if(s.rem<1e6)a.push({t:'danger',h:'DANA KRITIS!',m:'Sisa hanya '+rp(s.rem)+'. Segera top up!'});
-  if(!s.safe&&s.avg>0)a.push({t:'danger',h:'DANA TIDAK CUKUP!',m:'Rata-rata '+rp(s.avg)+'/hari → habis sebelum '+sd(c.targetFinish)+'.'});
-  else if(s.avg>s.mpd&&s.mpd>0)a.push({t:'warning',h:'OVER SPENDING!',m:'Kurangi '+rp(s.avg-s.mpd)+'/hari. Maks: '+rp(s.mpd)+'.'});
-  if(ts.od.length>0)a.push({t:'danger',h:ts.od.length+' TUGAS TERLAMBAT!',m:ts.od.map(x=>x.task).join(' · ')});
-  if(ts.tt.length>0)a.push({t:'warning',h:ts.tt.length+' deadline HARI INI',m:ts.tt.map(x=>x.task).join(' · ')});
-  return a;
-}
-
-// =====================================================
-// ACTIONS
-// =====================================================
+if(JSONBIN_BIN_ID.indexOf('GANTI')>=0){S.syncStatus='off';if(!Object.keys(S.projects).length)S.projects=JSON.parse(JSON.stringify(SEED_PROJECTS));render();return;}
+try{S.syncStatus='load';var r=await fetch(API_URL+'/latest',{headers:{'X-Master-Key':JSONBIN_API_KEY}});if(!r.ok)throw new Error(r.status);var j=await r.json();var d=j.record||j;
+if(d.config&&d.expenses&&!d.projects){S.projects={'plts-res':{name:'PLTS PT. RES',config:d.config,expenses:d.expenses,tasks:d.tasks||[]}};['plts-sae','food-estate','barelang-park'].forEach(function(k){S.projects[k]=JSON.parse(JSON.stringify(SEED_PROJECTS[k]));});await cloudSave();}
+else if(d.projects){S.projects=d.projects;}
+else{S.projects=JSON.parse(JSON.stringify(SEED_PROJECTS));await cloudSave();}
+S.syncStatus='ok';}catch(e){console.error('Load:',e);S.syncStatus='off';if(!Object.keys(S.projects).length)S.projects=JSON.parse(JSON.stringify(SEED_PROJECTS));}render();}
+async function cloudSave(){if(JSONBIN_BIN_ID.indexOf('GANTI')>=0||saving)return;saving=true;try{var r=await fetch(API_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_API_KEY},body:JSON.stringify({projects:S.projects})});if(!r.ok)throw new Error(r.status);S.syncStatus='ok';}catch(e){console.error('Save:',e);S.syncStatus='off';}saving=false;}
+setInterval(function(){if(!saving&&S.modal===null&&S.page==='dashboard')cloudLoad();},30000);
+function P(){return S.projects[S.currentProject]||null;}
+function calcStats(p){if(!p)return null;var e=p.expenses,c=p.config,t=td();var tot=e.reduce(function(s,x){return s+x.total;},0);var eff=c.masterBudget-c.cadangan,rem=eff-tot;var dates=[...new Set(e.map(function(x){return x.date;}))].sort();var nd=dates.length||1,avg=tot/nd;var dl=Math.max(0,ddf(t,c.targetFinish));var mpd=dl>0?rem/dl:0;var edl=avg>0?rem/avg:999;var ef=new Date();ef.setDate(ef.getDate()+Math.floor(edl));var dy={};e.forEach(function(x){dy[x.date]=(dy[x.date]||0)+x.total;});var cb={};e.forEach(function(x){cb[x.category]=(cb[x.category]||0)+x.total;});return{tot:tot,eff:eff,rem:rem,avg:avg,dl:dl,mpd:mpd,ef:ef,dy:dy,cb:cb,te:dy[t]||0,safe:ef>=new Date(c.targetFinish)};}
+function calcTS(p){if(!p)return{od:[],tt:[],ac:[],dn:[],tl:0};var t=p.tasks,d=td();return{od:t.filter(function(x){return x.status!=='Selesai'&&x.status!=='Batal'&&x.deadline<d;}),tt:t.filter(function(x){return x.deadline===d&&x.status!=='Selesai'&&x.status!=='Batal';}),ac:t.filter(function(x){return x.status==='Belum Mulai'||x.status==='Dalam Proses';}),dn:t.filter(function(x){return x.status==='Selesai';}),tl:t.filter(function(x){return x.status!=='Batal';}).length};}
+function getAlerts(s,ts,c){var a=[];if(!s)return a;if(s.rem<1e6)a.push({t:'danger',h:'DANA KRITIS!',m:'Sisa hanya '+rp(s.rem)});if(!s.safe&&s.avg>0)a.push({t:'danger',h:'DANA TIDAK CUKUP!',m:'Rata-rata '+rp(s.avg)+'/hari'});else if(s.avg>s.mpd&&s.mpd>0)a.push({t:'warning',h:'OVER SPENDING!',m:'Kurangi '+rp(s.avg-s.mpd)+'/hari'});if(ts.od.length>0)a.push({t:'danger',h:ts.od.length+' TUGAS TERLAMBAT!',m:ts.od.map(function(x){return x.task;}).join(' · ')});if(ts.tt.length>0)a.push({t:'warning',h:ts.tt.length+' deadline HARI INI',m:ts.tt.map(function(x){return x.task;}).join(' · ')});return a;}
+function doLogin(){var name=S.loginName.trim();if(!name){S.loginError='Isi nama Anda';render();return;}S.userName=name;localStorage.setItem('st_name',name);S.isAdmin=S.loginPass===ADMIN_PASSWORD;if(S.loginPass&&!S.isAdmin){S.loginError='Password salah';render();return;}S.loginError='';S.loginPass='';S.page='selectProject';render();}
+function selectProject(id){S.currentProject=id;S.tab='budget';S.taskFilter='active';S.page='dashboard';render();}
+function goProjectList(){S.modal=null;S.page='selectProject';render();}
+function goAdminOverview(){S.page='adminOverview';render();}
+function logout(){S.userName='';S.isAdmin=false;S.currentProject=null;S.page='login';S.loginName='';S.loginPass='';localStorage.removeItem('st_name');render();}
 function setTab(t){S.tab=t;render();}
 function setFilter(f){S.taskFilter=f;render();}
 function openExpForm(){S.expForm={date:td(),category:CATEGORIES[0].name,detail:'',qty:'1',price:String(CATEGORIES[0].price)};S.modal='exp';render();}
 function openTaskForm(){S.taskForm={task:'',location:LOCS[0],pic:'',deadline:td(),notes:''};S.modal='task';render();}
 function closeModal(){S.modal=null;S.delTarget=null;S.confirmReset=false;render();}
-
-function saveExpense(){
-  const f=S.expForm,pr=cp(f.category)||Number(f.price),q=Number(f.qty)||1;
-  S.expenses.push({id:uid(),date:f.date,category:f.category,detail:f.detail,qty:q,price:pr,total:q*pr});
-  S.modal=null;cloudSave();render();
-}
-
-function saveTask(){
-  const f=S.taskForm;
-  S.tasks.push({id:uid(),date:td(),task:f.task,location:f.location,pic:f.pic,deadline:f.deadline,status:'Belum Mulai',notes:f.notes});
-  S.modal=null;cloudSave();render();
-}
-
-function cycleStatus(id){
-  const cy=['Belum Mulai','Dalam Proses','Selesai'];
-  const t=S.tasks.find(x=>x.id===id);if(!t)return;
-  const i=cy.indexOf(t.status);t.status=cy[(i+1)%cy.length];
-  cloudSave();render();
-}
-
-function confirmDel(type,id,name){S.delTarget={type,id,name};S.modal='del';render();}
-function doDel(){
-  const d=S.delTarget;if(!d)return;
-  if(d.type==='expense')S.expenses=S.expenses.filter(x=>x.id!==d.id);
-  else S.tasks=S.tasks.filter(x=>x.id!==d.id);
-  S.modal=null;S.delTarget=null;cloudSave();render();
-}
-
-function saveConfig(k,v){S.config[k]=v;cloudSave();render();}
-function doReset(){S.expenses=[...SEED.expenses];S.tasks=[...SEED.tasks];S.config={...SEED.config};S.modal=null;S.confirmReset=false;cloudSave();render();}
-
-function setUserName(n){S.userName=n;localStorage.setItem('st_name',n);S.setupDone=true;render();}
-function addNote(){
-  const t=S.noteInput.trim();if(!t)return;
-  S.myNotes.unshift({id:uid(),text:t,date:td(),time:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})});
-  localStorage.setItem('st_notes',JSON.stringify(S.myNotes));S.noteInput='';render();
-}
-function delNote(id){S.myNotes=S.myNotes.filter(n=>n.id!==id);localStorage.setItem('st_notes',JSON.stringify(S.myNotes));render();}
-
-// =====================================================
-// RENDER
-// =====================================================
-function render(){
-const s=calcStats(),ts=calcTaskStats(),al=getAlerts(s,ts),c=S.config,t=td();
-let h='';
-
-// USER SETUP
-if(!S.userName){
-  document.getElementById('app').innerHTML=`
-  <div class="setup"><div class="setup-box">
-    <div class="setup-icon">⛏️</div>
-    <div class="setup-title">FIELD CONTROL</div>
-    <div class="setup-sub">SOIL TEST DASHBOARD</div>
-    <div class="field" style="text-align:left;margin-bottom:20px">
-      <label>NAMA ANDA</label>
-      <input type="text" id="sn" placeholder="Ketik nama Anda..." style="text-align:center;font-size:20px;padding:18px" />
-    </div>
-    <button class="btn btn-amber" onclick="var v=document.getElementById('sn').value.trim();if(v)setUserName(v);">MASUK →</button>
-    <div style="font-size:14px;color:var(--dim);margin-top:20px;font-weight:600">Nama disimpan di HP Anda saja</div>
-  </div></div>`;return;
-}
-
-// HEADER
-const urgent=s.dl<=3;
-h+=`<div class="hdr">
-  <div><div class="hdr-sub">SOIL TEST</div><h1>FIELD CONTROL</h1></div>
-  <div class="hdr-right">
-    <div class="hdr-date">${new Date().toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short'})}</div>
-    <div class="hdr-days ${urgent?'urgent':''}" style="color:${urgent?'var(--red)':'var(--amber)'}">⏱ ${s.dl} HARI LAGI</div>
-  </div>
-  <button class="gear" onclick="S.modal='set';render();">⚙</button>
-</div>`;
-
+function saveExpense(){var f=S.expForm,p=P();if(!p)return;var pr=cp(f.category)||Number(f.price),q=Number(f.qty)||1;p.expenses.push({id:uid(),date:f.date,category:f.category,detail:f.detail,qty:q,price:pr,total:q*pr,user:S.userName});S.modal=null;cloudSave();render();}
+function saveTask(){var f=S.taskForm,p=P();if(!p)return;p.tasks.push({id:uid(),date:td(),task:f.task,location:f.location,pic:f.pic,deadline:f.deadline,status:'Belum Mulai',notes:f.notes,user:S.userName});S.modal=null;cloudSave();render();}
+function cycleStatus(id){var cy=['Belum Mulai','Dalam Proses','Selesai'],p=P();if(!p)return;var t=p.tasks.find(function(x){return x.id===id;});if(!t)return;t.status=cy[(cy.indexOf(t.status)+1)%cy.length];cloudSave();render();}
+function confirmDel(type,id,name){if(!S.isAdmin)return;S.delTarget={type:type,id:id,name:name};S.modal='del';render();}
+function doDel(){var d=S.delTarget,p=P();if(!d||!p)return;if(d.type==='expense')p.expenses=p.expenses.filter(function(x){return x.id!==d.id;});else p.tasks=p.tasks.filter(function(x){return x.id!==d.id;});S.modal=null;S.delTarget=null;cloudSave();render();}
+function saveConfig(k,v){var p=P();if(!p||!S.isAdmin)return;p.config[k]=v;cloudSave();render();}
+function doReset(){var p=P();if(!p||!S.isAdmin)return;p.expenses=[];p.tasks=[];S.modal=null;S.confirmReset=false;cloudSave();render();}
+function addProject(){var id=S.newProjId.trim().toLowerCase().replace(/[^a-z0-9]/g,'-');var name=S.newProjName.trim();if(!id||!name){alert('Isi ID dan Nama Project');return;}if(S.projects[id]){alert('Project ID sudah ada');return;}S.projects[id]={name:name,config:JSON.parse(JSON.stringify(DEFAULT_CFG)),expenses:[],tasks:[]};S.newProjId='';S.newProjName='';S.modal=null;cloudSave();render();}
+function addNote(){var t=S.noteInput.trim();if(!t)return;S.myNotes.unshift({id:uid(),text:t,date:td(),time:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})});localStorage.setItem('st_notes',JSON.stringify(S.myNotes));S.noteInput='';render();}
+function delNote(id){S.myNotes=S.myNotes.filter(function(n){return n.id!==id;});localStorage.setItem('st_notes',JSON.stringify(S.myNotes));render();}
+function exportExcel(){if(typeof XLSX==='undefined'){alert('Library belum dimuat. Refresh halaman.');return;}var p=P();if(!p)return;var s=calcStats(p),ts=calcTS(p),c=p.config,pname=p.name;try{var wb=XLSX.utils.book_new();
+var dash=[['RECAP: '+pname],['Generated:',new Date().toLocaleString('id-ID')],['User:',S.userName],['Role:',S.isAdmin?'Administrator':'User'],[],['=== KEUANGAN ==='],['Master Budget',c.masterBudget],['Dana Cadangan',c.cadangan],['Budget Efektif',s.eff],['Total Terpakai',s.tot],['SISA DANA',s.rem],[],['=== FORECAST ==='],['Rata-rata/Hari',Math.round(s.avg)],['Sisa Hari',s.dl],['Maks/Hari',Math.round(s.mpd)],['Estimasi Habis',s.ef.toLocaleDateString('id-ID')],['Target',new Date(c.targetFinish+'T00:00:00').toLocaleDateString('id-ID')],['Status',s.safe?'CUKUP':'TIDAK CUKUP'],[],['=== TUGAS ==='],['Aktif',ts.ac.length],['Overdue',ts.od.length],['Selesai',ts.dn.length],[],['=== KATEGORI ==='],['Kategori','Total','%']];
+Object.entries(s.cb).sort(function(a,b){return b[1]-a[1];}).forEach(function(e){dash.push([e[0],e[1],s.tot>0?(e[1]/s.tot*100).toFixed(1)+'%':'0%']);});
+var ws1=XLSX.utils.aoa_to_sheet(dash);ws1['!cols']=[{wch:35},{wch:22},{wch:15}];XLSX.utils.book_append_sheet(wb,ws1,'Dashboard');
+var exp=[['NO','TANGGAL','KATEGORI','DETAIL','QTY','HARGA','TOTAL','OLEH']];p.expenses.forEach(function(e,i){exp.push([i+1,sd(e.date),e.category,e.detail,e.qty,e.price,e.total,e.user||'-']);});exp.push([],['','','','','','TOTAL:',p.expenses.reduce(function(a,e){return a+e.total;},0)]);
+var ws2=XLSX.utils.aoa_to_sheet(exp);ws2['!cols']=[{wch:5},{wch:14},{wch:38},{wch:28},{wch:6},{wch:14},{wch:14},{wch:14}];XLSX.utils.book_append_sheet(wb,ws2,'Data Pengeluaran');
+var tsk=[['NO','TANGGAL','TUGAS','LOKASI','PIC','DEADLINE','STATUS','CATATAN']];p.tasks.forEach(function(t,i){tsk.push([i+1,sd(t.date),t.task,t.location,t.pic,sd(t.deadline),t.status,t.notes]);});
+var ws3=XLSX.utils.aoa_to_sheet(tsk);ws3['!cols']=[{wch:5},{wch:14},{wch:35},{wch:16},{wch:14},{wch:14},{wch:18},{wch:28}];XLSX.utils.book_append_sheet(wb,ws3,'Data Tugas');
+var now=new Date(),pad=function(n){return String(n).padStart(2,'0');};
+var fname='Recap_'+pname.replace(/[^a-zA-Z0-9]/g,'_')+'_'+pad(now.getDate())+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()]+now.getFullYear()+'_'+pad(now.getHours())+pad(now.getMinutes())+'.xlsx';
+XLSX.writeFile(wb,fname);var btn=document.getElementById('export-btn');if(btn){btn.textContent='\\u2705 '+fname;setTimeout(function(){btn.textContent='\\ud83d\\udce5 EXPORT RECAP EXCEL';},4000);}
+}catch(err){alert('Gagal: '+err.message);}}
+function render(){var h='';
+if(S.page==='login'){h+='<div class="login"><div class="login-box"><div style="font-size:56px;margin-bottom:16px">\\u26cf\\ufe0f</div><div style="font-size:28px;font-weight:900;color:var(--amber);font-family:var(--mono)">FIELD CONTROL</div><div style="font-size:16px;color:var(--dim);font-weight:700;letter-spacing:2px;margin-bottom:36px">MULTI-PROJECT DASHBOARD</div><div style="text-align:left" class="gap"><div class="field"><label>NAMA ANDA</label><input type="text" id="ln" placeholder="Ketik nama Anda..." value="'+esc(S.loginName)+'" oninput="S.loginName=this.value" onkeydown="if(event.key===\'Enter\')document.getElementById(\'lp\').focus();" style="text-align:center;font-size:20px;padding:18px" /></div><div class="field"><label>PASSWORD (KOSONGKAN JIKA BUKAN ADMIN)</label><input type="password" id="lp" placeholder="Opsional" value="'+esc(S.loginPass)+'" oninput="S.loginPass=this.value" onkeydown="if(event.key===\'Enter\')doLogin();" style="text-align:center;font-size:20px;padding:18px" /></div>'+(S.loginError?'<div style="color:var(--red);font-size:16px;font-weight:700;text-align:center">'+esc(S.loginError)+'</div>':'')+'<button class="btn btn-amber" onclick="doLogin()" style="margin-top:8px">MASUK \\u2192</button></div><div style="font-size:14px;color:var(--dim);margin-top:24px;font-weight:600">Tanpa password = akses user biasa</div></div></div>';document.getElementById('app').innerHTML=h;return;}
+if(S.page==='selectProject'){h+='<div style="min-height:100vh;padding:24px;padding-bottom:40px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px"><div><div style="font-size:15px;color:var(--dim);font-weight:700">Halo, <strong style="color:var(--white)">'+esc(S.userName)+'</strong></div><div style="font-size:22px;font-weight:900;color:var(--white);margin-top:4px">Pilih Project</div></div><div style="display:flex;gap:8px;align-items:center"><span class="role-badge '+(S.isAdmin?'admin':'user')+'">'+(S.isAdmin?'\\ud83d\\udd11 ADMIN':'\\ud83d\\udc64 USER')+'</span><button class="ibtn" onclick="logout()" title="Logout" style="font-size:16px">\\u21a9</button></div></div>';
+if(S.isAdmin){h+='<div class="proj-card" onclick="goAdminOverview()" style="margin-bottom:16px;border-color:var(--purple);background:rgba(187,136,255,.06)"><div style="display:flex;align-items:center;gap:12px"><span style="font-size:28px">\\ud83d\\udcca</span><div><div style="font-size:18px;font-weight:800;color:var(--white)">Overview Semua Project</div><div style="font-size:15px;color:var(--purple);font-weight:700">Ringkasan semua project</div></div></div></div>';}
+h+='<div class="gap">';Object.entries(S.projects).forEach(function(e){var id=e[0],p=e[1];var s=calcStats(p),ts=calcTS(p);var color=s&&s.rem<1e6?'var(--red)':s&&!s.safe?'var(--amber)':'var(--green)';h+='<div class="proj-card" onclick="selectProject(\''+id+'\')"><h3>'+esc(p.name)+'</h3><p>'+p.expenses.length+' transaksi \\u00b7 '+ts.ac.length+' tugas aktif</p><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><span class="proj-badge" style="background:rgba(51,221,119,.1);color:var(--green)">Sisa: '+(s?rp(s.rem):'Rp 0')+'</span><span class="proj-badge" style="background:rgba(85,170,255,.1);color:'+color+'">'+(s?(s.safe?'\\u2713 Cukup':'\\u26a0 Kurang'):'Belum ada data')+'</span></div></div>';});
+if(S.isAdmin){h+='<button class="btn btn-purple" onclick="S.modal=\'addProject\';render();" style="margin-top:8px">+ TAMBAH PROJECT BARU</button>';}h+='</div></div>';
+if(S.modal==='addProject'){h+='<div class="ov" onclick="closeModal()"><div class="ov-bg"></div><div class="modal" onclick="event.stopPropagation()"><div class="modal-hdr"><span class="modal-title">Project Baru</span><button class="modal-x" onclick="closeModal()">\\u2715</button></div><div class="modal-body"><div class="field"><label>NAMA PROJECT</label><input type="text" placeholder="Misal: PLTS PT. XYZ" oninput="S.newProjName=this.value" value="'+esc(S.newProjName)+'" /></div><div class="field"><label>PROJECT ID (huruf kecil, tanpa spasi)</label><input type="text" placeholder="Misal: plts-xyz" oninput="S.newProjId=this.value" value="'+esc(S.newProjId)+'" /></div><button class="btn btn-purple" onclick="addProject()">\\u2713 BUAT PROJECT</button></div></div></div>';}
+document.getElementById('app').innerHTML=h;return;}
+if(S.page==='adminOverview'){h+='<div style="min-height:100vh;padding:16px;padding-bottom:40px"><div style="display:flex;align-items:center;margin-bottom:20px"><button class="ibtn" onclick="goProjectList()" style="margin-right:10px;font-size:22px">\\u2190</button><div><div style="font-size:14px;color:var(--dim);font-weight:700">Admin Overview</div><div style="font-size:22px;font-weight:900;color:var(--white)">Semua Project</div></div></div>';
+var gTot=0,gRem=0;Object.values(S.projects).forEach(function(p){var s=calcStats(p);if(s){gTot+=s.tot;gRem+=s.rem;}});
+h+='<div class="grid2" style="margin-bottom:16px"><div class="card"><div class="card-label">\\ud83d\\udcb5 TOTAL TERPAKAI</div><div class="card-value" style="color:var(--red)">'+rp(gTot)+'</div></div><div class="card"><div class="card-label">\\ud83d\\udcb0 TOTAL SISA</div><div class="card-value" style="color:var(--green)">'+rp(gRem)+'</div></div></div><div class="gap">';
+Object.entries(S.projects).forEach(function(e){var id=e[0],p=e[1];var s=calcStats(p),ts=calcTS(p);if(!s)return;var pct=Math.min(s.tot/s.eff*100,100);var color=pct>90?'var(--red)':pct>70?'var(--amber)':'var(--green)';
+h+='<div class="proj-card" onclick="selectProject(\''+id+'\')"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:18px;font-weight:800;color:var(--white)">'+esc(p.name)+'</div><span style="font-family:var(--mono);font-size:16px;font-weight:900;color:'+color+'">'+Math.round(pct)+'%</span></div><div class="bar-track" style="height:10px;margin-bottom:10px"><div class="bar-fill" style="width:'+pct+'%;background:'+color+'"></div></div><div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700"><span style="color:var(--muted)">Sisa: <span style="color:'+color+'">'+rp(s.rem)+'</span></span><span style="color:var(--muted)">'+(ts.od.length>0?'<span style=color:var(--red)>\\u26a0 '+ts.od.length+' overdue</span>':ts.ac.length+' tugas aktif')+'</span></div></div>';});
+h+='</div></div>';document.getElementById('app').innerHTML=h;return;}
+var p=P();if(!p){S.page='selectProject';render();return;}var s=calcStats(p),ts=calcTS(p),al=getAlerts(s,ts,p.config),c=p.config,t=td();
+var urgent=s.dl<=3;h+='<div class="hdr"><button class="ibtn" onclick="goProjectList()" style="margin-right:10px;font-size:22px">\\u2190</button><div style="flex:1;min-width:0"><div class="hdr-sub">'+esc(p.name)+'</div><h1>FIELD CONTROL</h1></div><div class="hdr-right"><div class="hdr-date">'+new Date().toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short'})+'</div><div class="hdr-days '+(urgent?'urgent':'')+'" style="color:'+(urgent?'var(--red)':'var(--amber)')+'">\\u23f1 '+s.dl+' HARI</div></div>'+(S.isAdmin?'<button class="ibtn" onclick="S.modal=\'set\';render();" style="margin-left:8px">\\u2699</button>':'')+'</div>';
 h+='<div class="content"><div class="gap anim">';
-
-// Greeting + Sync
-const syncCls=S.syncStatus==='ok'?'ok':S.syncStatus==='load'?'load':'off';
-const syncTxt=S.syncStatus==='ok'?'🔗 Data Sync OK':S.syncStatus==='load'?'⟳ Memuat...':'⚠ Offline';
-h+=`<div style="display:flex;justify-content:space-between;align-items:center">
-  <div style="font-size:17px;color:var(--muted);font-weight:700">Halo, <strong style="color:var(--white)">${esc(S.userName)}</strong></div>
-  <div class="sync ${syncCls}">${syncTxt}</div>
-</div>`;
-
-// Alerts
-al.forEach(a=>{h+=`<div class="alert ${a.t}"><span class="alert-icon">${a.t==='danger'?'🚨':'⚠️'}</span><div><div class="alert-title">${esc(a.h)}</div><div class="alert-msg">${esc(a.m)}</div></div></div>`;});
-
-// ========== BUDGET ==========
-if(S.tab==='budget'){
-  const pct=Math.min((s.tot/s.eff)*100,100);
-  const dg=pct>90||s.rem<1e6,wn=pct>70;
-  const gc=dg?'var(--red)':wn?'var(--amber)':'var(--green)';
-  h+=`<div class="gauge">
-    <svg width="210" height="124" viewBox="0 0 210 124">
-      <path d="M 22 110 A 83 83 0 0 1 188 110" fill="none" stroke="#0a1120" stroke-width="20" stroke-linecap="round"/>
-      <path d="M 22 110 A 83 83 0 0 1 188 110" fill="none" stroke="${gc}" stroke-width="20" stroke-linecap="round" stroke-dasharray="${(pct/100)*260.5} 260.5"/>
-      <text x="105" y="82" text-anchor="middle" fill="${gc}" font-size="42" font-weight="900" font-family="var(--mono)">${Math.round(pct)}%</text>
-      <text x="105" y="108" text-anchor="middle" fill="var(--muted)" font-size="14" font-weight="700" letter-spacing="3">TERPAKAI</text>
-    </svg>
-    <div class="gauge-lbl">SISA DANA EFEKTIF</div>
-    <div class="gauge-val" style="color:${gc}">${rp(s.rem)}</div>
-  </div>`;
-
-  h+=`<div class="grid2">
-    <div class="card"><div class="card-label">💵 MASTER BUDGET</div><div class="card-value">${rp(c.masterBudget)}</div><div class="card-sub">Cadangan: ${rp(c.cadangan)}</div></div>
-    <div class="card"><div class="card-label">🔥 TERPAKAI</div><div class="card-value" style="color:var(--red)">${rp(s.tot)}</div><div class="card-sub">${Math.round(s.tot/s.eff*100)}% dari efektif</div></div>
-    <div class="card"><div class="card-label">📈 RATA²/HARI</div><div class="card-value" style="color:${s.avg>s.mpd?'var(--red)':'var(--green)'}">${rp(s.avg)}</div><div class="card-sub">Maks: ${rp(s.mpd)}</div></div>
-    <div class="card"><div class="card-label">📅 HARI INI</div><div class="card-value" style="color:${s.te>s.mpd&&s.mpd>0?'var(--red)':'var(--green)'}">${rp(s.te)}</div><div class="card-sub">${s.te>s.mpd&&s.mpd>0?'⚠️ OVER BUDGET':'✓ OK'}</div></div>
-  </div>`;
-
-  // Forecast
-  const bp=Math.min(s.tot/s.eff*100,100),tp=Math.min(dd(c.projectStart,t)/dd(c.projectStart,c.targetFinish)*100,100);
-  h+=`<div class="card"><div class="sec">📊 PROYEKSI</div>
-    <div class="bar"><div class="bar-head"><span>Budget Terpakai</span><span>${Math.round(bp)}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${bp}%;background:${bp>90?'var(--red)':bp>70?'var(--amber)':'var(--green)'}"></div></div></div>
-    <div class="bar"><div class="bar-head"><span>Waktu Berlalu</span><span>${Math.round(tp)}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${tp}%;background:var(--blue)"></div></div></div>
-    <div style="border-top:2px solid var(--border);margin-top:10px;padding-top:10px">
-      <div style="display:flex;justify-content:space-between;font-size:17px;margin-bottom:6px"><span style="color:var(--muted);font-weight:700">Estimasi habis</span><span style="font-family:var(--mono);font-weight:900;color:${s.safe?'var(--green)':'var(--red)'}">${s.ef.toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</span></div>
-      <div style="display:flex;justify-content:space-between;font-size:17px"><span style="color:var(--muted);font-weight:700">Target selesai</span><span style="font-family:var(--mono);font-weight:900;color:var(--amber)">${sd(c.targetFinish)}</span></div>
-    </div>
-  </div>`;
-
-  // Category
-  const ce=Object.entries(s.cb).sort((a,b)=>b[1]-a[1]);
-  if(ce.length){
-    h+='<div class="card"><div class="sec">💳 PER KATEGORI</div>';
-    ce.forEach(([cat,v],i)=>{
-      h+=`<div style="margin-bottom:14px">
-        <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;margin-bottom:6px"><span style="color:#CCDDEE">${esc(CS[cat]||cat)}</span><span style="font-family:var(--mono);color:var(--muted)">${rp(v)}</span></div>
-        <div style="height:10px;background:#0a1120;border-radius:99px;overflow:hidden"><div style="height:100%;border-radius:99px;width:${(v/s.tot)*100}%;background:${CC[i%CC.length]};transition:width .8s"></div></div>
-      </div>`;
-    });
-    h+='</div>';
-  }
-  h+=`<button class="btn btn-amber" onclick="openExpForm()">+ TAMBAH PENGELUARAN</button>`;
-  h+=`<button id="export-btn" class="btn btn-export" onclick="exportExcel()" style="margin-top:4px">📥 EXPORT RECAP EXCEL</button>`;
-}
-
-// ========== TASKS ==========
-if(S.tab==='tasks'){
-  h+=`<div class="grid4">
-    <div class="mstat"><div class="mstat-n" style="color:var(--blue)">${ts.ac.length}</div><div class="mstat-l">AKTIF</div></div>
-    <div class="mstat"><div class="mstat-n" style="color:var(--red)">${ts.od.length}</div><div class="mstat-l">OVERDUE</div></div>
-    <div class="mstat"><div class="mstat-n" style="color:var(--green)">${ts.dn.length}</div><div class="mstat-l">SELESAI</div></div>
-    <div class="mstat"><div class="mstat-n">${ts.tl}</div><div class="mstat-l">TOTAL</div></div>
-  </div>`;
-
-  const pp=ts.tl>0?Math.round(ts.dn.length/ts.tl*100):0;
-  h+=`<div class="bar"><div class="bar-head"><span>Progress Tugas</span><span>${pp}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${pp}%;background:var(--green)"></div></div></div>`;
-
-  const flt=[{id:'active',l:'Aktif'},{id:'today',l:'Hari Ini ('+ts.tt.length+')'},{id:'overdue',l:'Overdue ('+ts.od.length+')'},{id:'done',l:'Selesai'},{id:'all',l:'Semua'}];
-  h+='<div class="chips">';flt.forEach(f=>{h+=`<button class="chip ${S.taskFilter===f.id?'on':''}" onclick="setFilter('${f.id}')">${f.l}</button>`;});h+='</div>';
-
-  let ft=S.tasks;
-  if(S.taskFilter==='active')ft=ft.filter(x=>x.status==='Belum Mulai'||x.status==='Dalam Proses');
-  else if(S.taskFilter==='today')ft=ft.filter(x=>x.deadline===t&&x.status!=='Selesai'&&x.status!=='Batal');
-  else if(S.taskFilter==='overdue')ft=ft.filter(x=>x.status!=='Selesai'&&x.status!=='Batal'&&x.deadline<t);
-  else if(S.taskFilter==='done')ft=ft.filter(x=>x.status==='Selesai');
-
-  if(!ft.length)h+=`<div style="text-align:center;padding:48px 0;color:var(--dim)"><div style="font-size:40px;margin-bottom:10px">✓</div><div style="font-size:16px;font-weight:700">Tidak ada tugas</div></div>`;
-
-  ft.forEach(x=>{
-    const od=x.status!=='Selesai'&&x.status!=='Batal'&&x.deadline<t;
-    const si=x.status==='Selesai'?'✓':x.status==='Dalam Proses'?'◐':'○';
-    const sc=x.status==='Selesai'?'done':x.status==='Dalam Proses'?'prog':'pend';
-    h+=`<div class="task ${od?'od':''}">
-      <button class="sbtn ${sc}" onclick="cycleStatus('${x.id}')">${si}</button>
-      <div style="flex:1;min-width:0">
-        <div class="task-name ${x.status==='Selesai'?'fin':''}">${esc(x.task)}</div>
-        <div class="tags">
-          <span class="tag">📍${esc(x.location)}</span>
-          <span class="tag">👤${esc(x.pic)}</span>
-          <span class="tag ${od?'od':''}">${od?'⚠ ':''}📅${sd(x.deadline)}</span>
-        </div>
-        ${x.notes?`<div class="task-note">💬 ${esc(x.notes)}</div>`:''}
-      </div>
-      <button class="del" onclick="confirmDel('task','${x.id}','${esc(x.task)}')">🗑</button>
-    </div>`;
-  });
-  h+=`<button class="btn btn-blue" onclick="openTaskForm()">+ TAMBAH TUGAS</button>`;
-}
-
-// ========== CHART ==========
-if(S.tab==='chart'){
-  const ds=[];{const st=new Date(c.projectStart),en=new Date(c.targetFinish);for(let d=new Date(st);d<=en;d.setDate(d.getDate()+1))ds.push(d.toISOString().split('T')[0]);}
-  const mx=Math.max(...ds.map(d=>s.dy[d]||0),s.mpd||1,1);
-  h+='<div class="card"><div class="sec">📊 PENGELUARAN HARIAN</div><div class="chart-bars">';
-  ds.forEach(d=>{
-    const v=s.dy[d]||0,hp=mx>0?(v/mx)*100:0,isTd=d===t,isOv=v>s.mpd&&s.mpd>0;
-    const cls=isOv?'over':isTd?'today':v>0?'normal':'empty';
-    const bg=isOv?'var(--red)':isTd?'var(--amber)':v>0?'var(--blue)':'#0a1120';
-    const dn=new Date(d+'T00:00:00').getDate();
-    h+=`<div class="chart-col">${v>0?`<div class="chart-val">${Math.round(v/1e3)}k</div>`:''}
-      <div class="chart-bar" style="height:${Math.max(hp,v>0?6:3)}%;background:${bg}"></div>
-      <div class="chart-dt" style="color:${isTd?'var(--amber)':'var(--dim)'};font-weight:${isTd?900:600}">${dn}</div></div>`;
-  });
-  h+=`</div><div class="chart-legend">
-    <span><span class="legend-dot" style="background:var(--red)"></span>Over</span>
-    <span><span class="legend-dot" style="background:var(--amber)"></span>Hari ini</span>
-    <span><span class="legend-dot" style="background:var(--blue)"></span>Normal</span>
-    <span style="margin-left:auto;font-family:var(--mono)">Jatah: ${rp(s.mpd)}</span>
-  </div></div>`;
-
-  const ce=Object.entries(s.cb).sort((a,b)=>b[1]-a[1]);
-  h+='<div class="card"><div class="sec">🏷 BREAKDOWN KATEGORI</div>';
-  ce.forEach(([cat,v],i)=>{
-    const p=s.tot>0?(v/s.tot*100).toFixed(0):0;
-    h+=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
-      <div style="width:14px;height:14px;border-radius:50%;background:${CC[i%CC.length]};flex-shrink:0"></div>
-      <div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700"><span style="color:#CCDDEE">${esc(CS[cat])}</span><span style="color:var(--muted)">${p}%</span></div><div style="font-size:15px;font-family:var(--mono);color:var(--dim);font-weight:700">${rp(v)}</div></div>
-    </div>`;
-  });
-  h+='</div>';
-
-  const bpp=Math.min(s.tot/s.eff*100,100),tpp=Math.min(dd(c.projectStart,t)/dd(c.projectStart,c.targetFinish)*100,100);
-  const over=bpp>tpp;
-  h+=`<div class="card"><div class="sec">⚖ BUDGET vs WAKTU</div>
-    <div class="bar"><div class="bar-head"><span>Budget Terpakai</span><span>${Math.round(bpp)}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${bpp}%;background:${bpp>70?'var(--amber)':'var(--green)'}"></div></div></div>
-    <div class="bar"><div class="bar-head"><span>Waktu Berlalu</span><span>${Math.round(tpp)}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${tpp}%;background:var(--blue)"></div></div></div>
-    <div style="text-align:center;margin-top:14px;padding-top:14px;border-top:2px solid var(--border);font-size:18px;font-weight:800;color:${over?'var(--red)':'var(--green)'}">
-      ${over?'⚠️ Spending LEBIH CEPAT dari waktu!':'✅ Spending seimbang dengan waktu'}
-    </div>
-  </div>`;
-}
-
-// ========== LOG ==========
-if(S.tab==='log'){
-  h+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <div style="font-size:16px;font-weight:800;color:var(--muted);letter-spacing:1px">📝 ${S.expenses.length} TRANSAKSI</div>
-    <div style="font-family:var(--mono);font-size:17px;font-weight:900;color:var(--amber)">Total: ${rp(s.tot)}</div>
-  </div>`;
-  [...S.expenses].reverse().forEach(e=>{
-    h+=`<div class="log"><div style="flex:1;min-width:0"><div class="log-title">${esc(e.detail||e.category)}</div><div class="log-sub">${sd(e.date)} · ${esc(CS[e.category])} · ${e.qty}×${rp(e.price)}</div></div>
-    <div class="log-amt">${rp(e.total)}</div>
-    <button class="del" onclick="confirmDel('expense','${e.id}','${esc(e.detail||e.category)}')">🗑</button></div>`;
-  });
-}
-
-// ========== NOTES ==========
-if(S.tab==='notes'){
-  h+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <div style="font-size:16px;font-weight:800;color:var(--muted)">📌 CATATAN PRIBADI</div>
-    <div style="font-size:14px;color:var(--dim);font-weight:700">Hanya Anda yang lihat</div>
-  </div>
-  <div style="display:flex;gap:10px;margin-bottom:14px">
-    <input type="text" id="ni" placeholder="Tulis catatan..." value="${esc(S.noteInput)}" oninput="S.noteInput=this.value" onkeydown="if(event.key==='Enter')addNote();" style="flex:1;border-radius:12px;padding:14px;font-size:17px;font-weight:700;border:2px solid var(--border);background:#0d1525;color:var(--white);outline:none" />
-    <button class="btn btn-amber" style="width:auto;padding:14px 24px" onclick="addNote()">+</button>
-  </div>`;
-  if(!S.myNotes.length)h+=`<div style="text-align:center;padding:48px 0;color:var(--dim);font-size:16px;font-weight:700">Belum ada catatan</div>`;
-  S.myNotes.forEach(n=>{
-    h+=`<div class="log" style="margin-bottom:8px"><div style="flex:1"><div style="font-size:16px;font-weight:700;line-height:1.4">${esc(n.text)}</div><div class="log-sub">${sd(n.date)} ${n.time}</div></div>
-    <button class="del" onclick="delNote('${n.id}')">🗑</button></div>`;
-  });
-}
-
-h+='</div></div>'; // gap + content
-
-// NAV
-const nv=[{id:'budget',i:'💰',l:'Budget',b:0},{id:'tasks',i:'📋',l:'Tugas',b:ts.od.length},{id:'chart',i:'📊',l:'Grafik',b:0},{id:'log',i:'📝',l:'Log',b:0},{id:'notes',i:'📌',l:'Pribadi',b:0}];
-h+='<div class="nav">';
-nv.forEach(n=>{
-  h+=`<button class="nav-btn ${S.tab===n.id?'on':''}" onclick="setTab('${n.id}')">
-    ${n.b>0?`<span class="nav-badge">${n.b}</span>`:''}
-    <span class="nav-icon">${n.i}</span><span class="nav-lbl">${n.l}</span>
-  </button>`;
-});
-h+='</div>';
-
-// ========== MODALS ==========
-
-// Expense
-if(S.modal==='exp'&&S.expForm){
-  const f=S.expForm,fp=cp(f.category),pr=fp||Number(f.price)||0,tl=pr*(Number(f.qty)||1);
-  h+=`<div class="ov" onclick="closeModal()"><div class="ov-bg"></div><div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-hdr"><span class="modal-title">Tambah Pengeluaran</span><button class="modal-x" onclick="closeModal()">✕</button></div>
-    <div class="modal-body">
-      <div class="field"><label>TANGGAL</label><input type="date" value="${f.date}" onchange="S.expForm.date=this.value" /></div>
-      <div class="field"><label>KATEGORI</label><select onchange="S.expForm.category=this.value;S.expForm.price=String(cp(this.value));render();">
-        ${CATEGORIES.map(c=>`<option value="${esc(c.name)}" ${c.name===f.category?'selected':''}>${esc(c.name)}</option>`).join('')}
-      </select></div>
-      <div class="field"><label>DETAIL / KETERANGAN</label><input type="text" placeholder="Misal: Makan siang 6 orang" value="${esc(f.detail)}" oninput="S.expForm.detail=this.value" /></div>
-      <div class="grid2">
-        <div class="field"><label>QTY</label><input type="number" min="1" value="${f.qty}" oninput="S.expForm.qty=this.value;render();" style="text-align:center" /></div>
-        <div class="field"><label>HARGA SATUAN</label><input type="number" value="${fp||f.price}" ${fp?'disabled':''} oninput="S.expForm.price=this.value;render();" style="text-align:center" /></div>
-      </div>
-      <div class="total-box"><div class="total-lbl">TOTAL</div><div class="total-val">${rp(tl)}</div></div>
-      <button class="btn btn-green" onclick="saveExpense()">✓ SIMPAN PENGELUARAN</button>
-    </div>
-  </div></div>`;
-}
-
-// Task
-if(S.modal==='task'&&S.taskForm){
-  const f=S.taskForm;
-  h+=`<div class="ov" onclick="closeModal()"><div class="ov-bg"></div><div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-hdr"><span class="modal-title">Tambah Tugas</span><button class="modal-x" onclick="closeModal()">✕</button></div>
-    <div class="modal-body">
-      <div class="field"><label>TUGAS / KEGIATAN</label><input type="text" placeholder="Misal: Soil Test Titik 3" value="${esc(f.task)}" oninput="S.taskForm.task=this.value" /></div>
-      <div class="grid2">
-        <div class="field"><label>LOKASI</label><select onchange="S.taskForm.location=this.value">${LOCS.map(l=>`<option ${l===f.location?'selected':''}>${l}</option>`).join('')}</select></div>
-        <div class="field"><label>PIC</label><input type="text" placeholder="Nama" value="${esc(f.pic)}" oninput="S.taskForm.pic=this.value" /></div>
-      </div>
-      <div class="field"><label>DEADLINE</label><input type="date" value="${f.deadline}" onchange="S.taskForm.deadline=this.value" /></div>
-      <div class="field"><label>CATATAN (OPSIONAL)</label><input type="text" placeholder="Catatan..." value="${esc(f.notes)}" oninput="S.taskForm.notes=this.value" /></div>
-      <button class="btn btn-blue" onclick="if(S.taskForm.task&&S.taskForm.pic)saveTask();">✓ SIMPAN TUGAS</button>
-    </div>
-  </div></div>`;
-}
-
-// Delete
-if(S.modal==='del'&&S.delTarget){
-  const d=S.delTarget;
-  h+=`<div class="ov" onclick="closeModal()"><div class="ov-bg"></div><div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-hdr"><span class="modal-title">Hapus Item?</span><button class="modal-x" onclick="closeModal()">✕</button></div>
-    <div class="modal-body" style="text-align:center">
-      <div style="font-size:48px;margin-bottom:14px">🗑️</div>
-      <div style="font-size:18px;font-weight:700">Yakin hapus <strong style="color:#fff">${esc(d.name)}</strong>?</div>
-      <div style="font-size:16px;color:var(--dim);margin-top:6px;font-weight:700">Data dihapus untuk SEMUA user.</div>
-      <div class="grid2" style="margin-top:16px">
-        <button class="btn btn-outline" onclick="closeModal()">Batal</button>
-        <button class="btn btn-red" onclick="doDel()">Ya, Hapus</button>
-      </div>
-    </div>
-  </div></div>`;
-}
-
-// Settings
-if(S.modal==='set'){
-  h+=`<div class="ov" onclick="closeModal()"><div class="ov-bg"></div><div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-hdr"><span class="modal-title">⚙ Pengaturan</span><button class="modal-x" onclick="closeModal()">✕</button></div>
-    <div class="modal-body">
-      <div style="font-size:15px;font-weight:800;color:var(--green);letter-spacing:1px">🔗 DATA SHARED (Semua User)</div>
-      <div class="field"><label>MASTER BUDGET (Rp)</label><input type="number" value="${c.masterBudget}" onchange="saveConfig('masterBudget',Number(this.value))" /></div>
-      <div class="field"><label>DANA CADANGAN (Rp)</label><input type="number" value="${c.cadangan}" onchange="saveConfig('cadangan',Number(this.value))" /></div>
-      <div class="field"><label>TARGET SELESAI</label><input type="date" value="${c.targetFinish}" onchange="saveConfig('targetFinish',this.value)" /></div>
-      <div class="field"><label>MULAI PROYEK</label><input type="date" value="${c.projectStart}" onchange="saveConfig('projectStart',this.value)" /></div>
-      <div style="border-top:2px solid var(--border);padding-top:16px">
-        <div style="font-size:15px;font-weight:800;color:var(--amber);letter-spacing:1px;margin-bottom:10px">📌 DATA PRIBADI</div>
-        <div class="field"><label>NAMA ANDA</label><input type="text" value="${esc(S.userName)}" onchange="setUserName(this.value.trim()||'User')" /></div>
-      </div>
-      <div style="border-top:2px solid var(--border);padding-top:16px">
-        ${S.confirmReset?`
-          <div style="text-align:center;font-size:17px;font-weight:800;color:var(--red);margin-bottom:12px">⚠️ Semua data shared dikembalikan ke awal!</div>
-          <div class="grid2"><button class="btn btn-outline" onclick="S.confirmReset=false;render();">Batal</button><button class="btn btn-red" onclick="doReset()">Ya, Reset</button></div>
-        `:`<button class="btn btn-outline" style="border-color:rgba(255,68,68,.3);color:#FF6666" onclick="S.confirmReset=true;render();">Reset Semua Data Shared</button>`}
-      </div>
-    </div>
-  </div></div>`;
-}
-
-document.getElementById('app').innerHTML=h;
-}
-
-// =====================================================
-// EXPORT EXCEL
-// =====================================================
-function exportExcel(){
-  if(typeof XLSX==='undefined'){alert('Library Excel belum dimuat. Pastikan HP terhubung internet, lalu refresh halaman.');return;}
-  
-  // Show loading state
-  const btn=document.getElementById('export-btn');
-  if(btn){btn.classList.add('export-loading');btn.textContent='Generating Excel...';}
-
-  setTimeout(()=>{
-  try{
-    const s=calcStats(),ts=calcTaskStats(),c=S.config,t=td();
-    const wb=XLSX.utils.book_new();
-
-    // ===== SHEET 1: DASHBOARD =====
-    const dash=[];
-    dash.push(['SOIL TEST — RECAP DASHBOARD']);
-    dash.push(['Generated:',new Date().toLocaleString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})]);
-    dash.push(['User:',S.userName]);
-    dash.push([]);
-    dash.push(['═══ POSISI KEUANGAN ═══']);
-    dash.push(['Master Budget',c.masterBudget]);
-    dash.push(['Dana Cadangan (Ditahan)',c.cadangan]);
-    dash.push(['Budget Efektif',s.eff]);
-    dash.push(['Total Terpakai',s.tot]);
-    dash.push(['SISA DANA EFEKTIF',s.rem]);
-    dash.push(['Status Saldo',s.rem<1e6?'⚠ BAHAYA: TOP UP!':'✓ AMAN']);
-    dash.push([]);
-    dash.push(['═══ PREDIKSI (FORECAST) ═══']);
-    dash.push(['Rata-rata Pengeluaran/Hari',Math.round(s.avg)]);
-    dash.push(['Sisa Hari ke Target',s.dl]);
-    dash.push(['Maks Jatah Per Hari',Math.round(s.mpd)]);
-    dash.push(['Estimasi Uang Habis',s.ef.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})]);
-    dash.push(['Target Selesai',new Date(c.targetFinish+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})]);
-    dash.push(['Status Kelangsungan',s.safe?'✓ DANA CUKUP':'⚠ TIDAK CUKUP!']);
-    dash.push([]);
-    dash.push(['═══ SARAN PERBAIKAN ═══']);
-    if(s.avg>s.mpd&&s.mpd>0){
-      dash.push(['WAJIB KURANGI BIAYA/HARI',Math.round(s.avg-s.mpd)]);
-      dash.push(['KESIMPULAN','BOROS! Kurangi pengeluaran.']);
-    }else{
-      dash.push(['KESIMPULAN','AMAN TERKENDALI']);
-    }
-    dash.push([]);
-    dash.push(['═══ PROGRESS TUGAS ═══']);
-    dash.push(['Total Tugas Aktif',ts.ac.length]);
-    dash.push(['Tugas Overdue',ts.od.length]);
-    dash.push(['Tugas Selesai',ts.dn.length]);
-    dash.push(['% Progress',ts.tl>0?Math.round(ts.dn.length/ts.tl*100)+'%':'0%']);
-    dash.push([]);
-    dash.push(['═══ BREAKDOWN PER KATEGORI ═══']);
-    dash.push(['Kategori','Total (Rp)','Persentase']);
-    Object.entries(s.cb).sort((a,b)=>b[1]-a[1]).forEach(([cat,v])=>{
-      dash.push([cat,v,s.tot>0?(v/s.tot*100).toFixed(1)+'%':'0%']);
-    });
-    dash.push([]);
-    dash.push(['═══ MONITORING EXPENSE/HARI ═══']);
-    dash.push(['Tanggal','Total Expense','Status']);
-    const allD=[];{const st=new Date(c.projectStart),en=new Date(c.targetFinish);for(let d=new Date(st);d<=en;d.setDate(d.getDate()+1))allD.push(d.toISOString().split('T')[0]);}
-    allD.forEach(d=>{
-      const v=s.dy[d]||0;
-      const dt=new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
-      dash.push([dt,v,v>s.mpd&&s.mpd>0&&v>0?'⚠ OVER':'OK']);
-    });
-
-    const ws1=XLSX.utils.aoa_to_sheet(dash);
-    // Column widths
-    ws1['!cols']=[{wch:35},{wch:22},{wch:15}];
-    XLSX.utils.book_append_sheet(wb,ws1,'Dashboard');
-
-    // ===== SHEET 2: DATA PENGELUARAN =====
-    const expRows=[['NO','TANGGAL','KATEGORI','DETAIL / KETERANGAN','QTY','HARGA SATUAN','TOTAL']];
-    S.expenses.forEach((e,i)=>{
-      expRows.push([
-        i+1,
-        new Date(e.date+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}),
-        e.category,
-        e.detail,
-        e.qty,
-        e.price,
-        e.total
-      ]);
-    });
-    // Total row
-    const totalExp=S.expenses.reduce((a,e)=>a+e.total,0);
-    expRows.push([]);
-    expRows.push(['','','','','','GRAND TOTAL:',totalExp]);
-
-    const ws2=XLSX.utils.aoa_to_sheet(expRows);
-    ws2['!cols']=[{wch:5},{wch:18},{wch:38},{wch:30},{wch:6},{wch:16},{wch:16}];
-    XLSX.utils.book_append_sheet(wb,ws2,'Data Pengeluaran');
-
-    // ===== SHEET 3: DATA TUGAS =====
-    const taskRows=[['NO','TANGGAL','TUGAS / KEGIATAN','LOKASI','PIC','DEADLINE','STATUS','CATATAN']];
-    S.tasks.forEach((t,i)=>{
-      const isOD=t.status!=='Selesai'&&t.status!=='Batal'&&t.deadline<td();
-      taskRows.push([
-        i+1,
-        new Date(t.date+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}),
-        t.task,
-        t.location,
-        t.pic,
-        new Date(t.deadline+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}),
-        t.status+(isOD?' ⚠ OVERDUE':''),
-        t.notes
-      ]);
-    });
-
-    const ws3=XLSX.utils.aoa_to_sheet(taskRows);
-    ws3['!cols']=[{wch:5},{wch:18},{wch:35},{wch:16},{wch:14},{wch:18},{wch:22},{wch:30}];
-    XLSX.utils.book_append_sheet(wb,ws3,'Data Tugas');
-
-    // Generate filename with timestamp
-    const now=new Date();
-    const pad=n=>String(n).padStart(2,'0');
-    const fname='Recap_SoilTest_'+pad(now.getDate())+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()]+now.getFullYear()+'_'+pad(now.getHours())+pad(now.getMinutes())+'.xlsx';
-
-    // Download
-    XLSX.writeFile(wb,fname);
-
-    // Success feedback
-    if(btn){btn.classList.remove('export-loading');btn.textContent='✅ BERHASIL! File: '+fname;}
-    setTimeout(()=>{if(btn){btn.classList.remove('export-loading');btn.textContent='📥 EXPORT RECAP EXCEL';}},4000);
-
-  }catch(err){
-    console.error('Export error:',err);
-    alert('Gagal export: '+err.message+'\n\nPastikan HP terhubung internet.');
-    if(btn){btn.classList.remove('export-loading');btn.textContent='📥 EXPORT RECAP EXCEL';}
-  }
-  },100); // setTimeout to allow UI update
-}
-
-// INIT
+var syncCls=S.syncStatus==='ok'?'ok':S.syncStatus==='load'?'load':'off';var syncTxt=S.syncStatus==='ok'?'\\ud83d\\udd17 Sync OK':S.syncStatus==='load'?'\\u27f3 Memuat...':'\\u26a0 Offline';
+h+='<div style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px;color:var(--muted);font-weight:700">Halo, <strong style="color:var(--white)">'+esc(S.userName)+'</strong></span><span class="role-badge '+(S.isAdmin?'admin':'user')+'" style="font-size:11px;padding:2px 8px">'+(S.isAdmin?'ADMIN':'USER')+'</span></div><div class="sync '+syncCls+'">'+syncTxt+'</div></div>';
+al.forEach(function(a){h+='<div class="alert '+a.t+'"><span class="alert-icon">'+(a.t==='danger'?'\\ud83d\\udea8':'\\u26a0\\ufe0f')+'</span><div><div class="alert-title">'+esc(a.h)+'</div><div class="alert-msg">'+esc(a.m)+'</div></div></div>';});
+if(S.tab==='budget'){var pct=Math.min((s.tot/s.eff)*100,100);var dg=pct>90||s.rem<1e6,wn=pct>70;var gc=dg?'var(--red)':wn?'var(--amber)':'var(--green)';
+h+='<div class="gauge"><svg width="210" height="124" viewBox="0 0 210 124"><path d="M 22 110 A 83 83 0 0 1 188 110" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="20" stroke-linecap="round"/><path d="M 22 110 A 83 83 0 0 1 188 110" fill="none" stroke="'+gc+'" stroke-width="20" stroke-linecap="round" stroke-dasharray="'+(pct/100*260.5)+' 260.5"/><text x="105" y="82" text-anchor="middle" fill="'+gc+'" font-size="42" font-weight="900" style="font-family:var(--mono)">'+Math.round(pct)+'%</text><text x="105" y="108" text-anchor="middle" fill="var(--muted)" font-size="14" font-weight="700" letter-spacing="3">TERPAKAI</text></svg><div class="gauge-lbl">SISA DANA EFEKTIF</div><div class="gauge-val" style="color:'+gc+'">'+rp(s.rem)+'</div></div>';
+h+='<div class="grid2"><div class="card"><div class="card-label">\\ud83d\\udcb5 MASTER BUDGET</div><div class="card-value">'+rp(c.masterBudget)+'</div><div class="card-sub">Cadangan: '+rp(c.cadangan)+'</div></div><div class="card"><div class="card-label">\\ud83d\\udd25 TERPAKAI</div><div class="card-value" style="color:var(--red)">'+rp(s.tot)+'</div><div class="card-sub">'+Math.round(s.tot/s.eff*100)+'% dari efektif</div></div><div class="card"><div class="card-label">\\ud83d\\udcc8 RATA\\u00b2/HARI</div><div class="card-value" style="color:'+(s.avg>s.mpd?'var(--red)':'var(--green)')+'">'+rp(s.avg)+'</div><div class="card-sub">Maks: '+rp(s.mpd)+'</div></div><div class="card"><div class="card-label">\\ud83d\\udcc5 HARI INI</div><div class="card-value" style="color:'+(s.te>s.mpd&&s.mpd>0?'var(--red)':'var(--green)')+'">'+rp(s.te)+'</div><div class="card-sub">'+(s.te>s.mpd&&s.mpd>0?'\\u26a0\\ufe0f OVER':'\\u2713 OK')+'</div></div></div>';
+var bp=Math.min(s.tot/s.eff*100,100),tp=Math.min(ddf(c.projectStart,t)/Math.max(ddf(c.projectStart,c.targetFinish),1)*100,100);
+h+='<div class="card"><div class="sec">\\ud83d\\udcca PROYEKSI</div><div class="bar"><div class="bar-head"><span>Budget Terpakai</span><span>'+Math.round(bp)+'%</span></div><div class="bar-track"><div class="bar-fill" style="width:'+bp+'%;background:'+(bp>90?'var(--red)':bp>70?'var(--amber)':'var(--green)')+'"></div></div></div><div class="bar"><div class="bar-head"><span>Waktu Berlalu</span><span>'+Math.round(tp)+'%</span></div><div class="bar-track"><div class="bar-fill" style="width:'+tp+'%;background:var(--blue)"></div></div></div><div style="border-top:2px solid var(--border);margin-top:10px;padding-top:10px"><div style="display:flex;justify-content:space-between;font-size:17px;margin-bottom:6px"><span style="color:var(--muted);font-weight:700">Estimasi habis</span><span style="font-family:var(--mono);font-weight:900;color:'+(s.safe?'var(--green)':'var(--red)')+'">'+s.ef.toLocaleDateString('id-ID',{day:'numeric',month:'short'})+'</span></div><div style="display:flex;justify-content:space-between;font-size:17px"><span style="color:var(--muted);font-weight:700">Target selesai</span><span style="font-family:var(--mono);font-weight:900;color:var(--amber)">'+sd(c.targetFinish)+'</span></div></div></div>';
+var ce=Object.entries(s.cb).sort(function(a,b){return b[1]-a[1];});if(ce.length){h+='<div class="card"><div class="sec">\\ud83d\\udcb3 PER KATEGORI</div>';ce.forEach(function(e,i){h+='<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;margin-bottom:6px"><span style="color:var(--white)">'+esc(CS[e[0]]||e[0])+'</span><span style="font-family:var(--mono);color:var(--muted)">'+rp(e[1])+'</span></div><div style="height:10px;background:rgba(0,0,0,.2);border-radius:99px;overflow:hidden"><div style="height:100%;border-radius:99px;width:'+(e[1]/s.tot*100)+'%;background:'+CC[i%CC.length]+';transition:width .8s"></div></div></div>';});h+='</div>';}
+h+='<button class="btn btn-amber" onclick="openExpForm()">+ TAMBAH PENGELUARAN</button>';
+h+='<button id="export-btn" class="btn btn-export" onclick="exportExcel()">\\ud83d\\udce5 EXPORT RECAP EXCEL</button>';}
+if(S.tab==='tasks'){h+='<div class="grid4"><div class="mstat"><div class="mstat-n" style="color:var(--blue)">'+ts.ac.length+'</div><div class="mstat-l">AKTIF</div></div><div class="mstat"><div class="mstat-n" style="color:var(--red)">'+ts.od.length+'</div><div class="mstat-l">OVERDUE</div></div><div class="mstat"><div class="mstat-n" style="color:var(--green)">'+ts.dn.length+'</div><div class="mstat-l">SELESAI</div></div><div class="mstat"><div class="mstat-n">'+ts.tl+'</div><div class="mstat-l">TOTAL</div></div></div>';
+var pp=ts.tl>0?Math.round(ts.dn.length/ts.tl*100):0;h+='<div class="bar"><div class="bar-head"><span>Progress</span><span>'+pp+'%</span></div><div class="bar-track"><div class="bar-fill" style="width:'+pp+'%;background:var(--green)"></div></div></div>';
+h+='<div class="chips">';[{id:'active',l:'Aktif'},{id:'today',l:'Hari Ini ('+ts.tt.length+')'},{id:'overdue',l:'Overdue ('+ts.od.length+')'},{id:'done',l:'Selesai'},{id:'all',l:'Semua'}].forEach(function(f){h+='<button class="chip '+(S.taskFilter===f.id?'on':'')+'" onclick="setFilter(\''+f.id+'\')">'+f.l+'</button>';});h+='</div>';
+var ft=p.tasks;if(S.taskFilter==='active')ft=ft.filter(function(x){return x.status==='Belum Mulai'||x.status==='Dalam Proses';});else if(S.taskFilter==='today')ft=ft.filter(function(x){return x.deadline===t&&x.status!=='Selesai'&&x.status!=='Batal';});else if(S.taskFilter==='overdue')ft=ft.filter(function(x){return x.status!=='Selesai'&&x.status!=='Batal'&&x.deadline<t;});else if(S.taskFilter==='done')ft=ft.filter(function(x){return x.status==='Selesai';});
+if(!ft.length)h+='<div style="text-align:center;padding:48px 0;color:var(--dim)"><div style="font-size:40px;margin-bottom:10px">\\u2713</div><div style="font-size:16px;font-weight:700">Tidak ada tugas</div></div>';
+ft.forEach(function(x){var od=x.status!=='Selesai'&&x.status!=='Batal'&&x.deadline<t;var si=x.status==='Selesai'?'\\u2713':x.status==='Dalam Proses'?'\\u25d0':'\\u25cb';var sc=x.status==='Selesai'?'done':x.status==='Dalam Proses'?'prog':'pend';h+='<div class="task '+(od?'od':'')+'"><button class="sbtn '+sc+'" onclick="cycleStatus(\''+x.id+'\')">'+si+'</button><div style="flex:1;min-width:0"><div class="task-name '+(x.status==='Selesai'?'fin':'')+'">'+esc(x.task)+'</div><div class="tags"><span class="tag">\\ud83d\\udccd'+esc(x.location)+'</span><span class="tag">\\ud83d\\udc64'+esc(x.pic)+'</span><span class="tag '+(od?'od':'')+'">'+(od?'\\u26a0 ':'')+'\\ud83d\\udcc5'+sd(x.deadline)+'</span></div>'+(x.notes?'<div class="task-note">\\ud83d\\udcac '+esc(x.notes)+'</div>':'')+'</div>'+(S.isAdmin?'<button class="del" onclick="confirmDel(\'task\',\''+x.id+'\',\''+esc(x.task)+'\')">\\ud83d\\uddd1</button>':'')+'</div>';});
+h+='<button class="btn btn-blue" onclick="openTaskForm()">+ TAMBAH TUGAS</button>';}
+if(S.tab==='chart'){var ds=[];var cst=new Date(c.projectStart),cen=new Date(c.targetFinish);for(var d=new Date(cst);d<=cen;d.setDate(d.getDate()+1))ds.push(d.toISOString().split('T')[0]);var mx=Math.max.apply(null,ds.map(function(d){return s.dy[d]||0;}).concat([s.mpd||1,1]));
+h+='<div class="card"><div class="sec">\\ud83d\\udcca PENGELUARAN HARIAN</div><div class="chart-bars">';ds.forEach(function(d){var v=s.dy[d]||0,hp=mx>0?(v/mx)*100:0,isTd=d===t,isOv=v>s.mpd&&s.mpd>0;var bg=isOv?'var(--red)':isTd?'var(--amber)':v>0?'var(--blue)':'rgba(0,0,0,.15)';h+='<div class="chart-col">'+(v>0?'<div class="chart-val">'+Math.round(v/1e3)+'k</div>':'')+'<div class="chart-bar" style="height:'+Math.max(hp,v>0?6:3)+'%;background:'+bg+'"></div><div class="chart-dt" style="color:'+(isTd?'var(--amber)':'var(--dim)')+';font-weight:'+(isTd?900:600)+'">'+new Date(d+'T00:00:00').getDate()+'</div></div>';});
+h+='</div><div class="chart-legend"><span><span class="legend-dot" style="background:var(--red)"></span>Over</span><span><span class="legend-dot" style="background:var(--amber)"></span>Hari ini</span><span><span class="legend-dot" style="background:var(--blue)"></span>Normal</span><span style="margin-left:auto;font-family:var(--mono)">Jatah: '+rp(s.mpd)+'</span></div></div>';
+var ce2=Object.entries(s.cb).sort(function(a,b){return b[1]-a[1];});h+='<div class="card"><div class="sec">\\ud83c\\udff7 KATEGORI</div>';ce2.forEach(function(e,i){h+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px"><div style="width:14px;height:14px;border-radius:50%;background:'+CC[i%CC.length]+';flex-shrink:0"></div><div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700"><span style="color:var(--white)">'+esc(CS[e[0]])+'</span><span style="color:var(--muted)">'+(s.tot>0?(e[1]/s.tot*100).toFixed(0):0)+'%</span></div><div style="font-size:15px;font-family:var(--mono);color:var(--dim);font-weight:700">'+rp(e[1])+'</div></div></div>';});h+='</div>';
+var bpp=Math.min(s.tot/s.eff*100,100),tpp=Math.min(ddf(c.projectStart,t)/Math.max(ddf(c.projectStart,c.targetFinish),1)*100,100);h+='<div class="card"><div class="sec">\\u2696 BUDGET vs WAKTU</div><div class="bar"><div class="bar-head"><span>Budget</span><span>'+Math.round(bpp)+'%</span></div><div class="bar-track"><div class="bar-fill" style="width:'+bpp+'%;background:'+(bpp>70?'var(--amber)':'var(--green)')+'"></div></div></div><div class="bar"><div class="bar-head"><span>Waktu</span><span>'+Math.round(tpp)+'%</span></div><div class="bar-track"><div class="bar-fill" style="width:'+tpp+'%;background:var(--blue)"></div></div></div><div style="text-align:center;margin-top:14px;padding-top:14px;border-top:2px solid var(--border);font-size:18px;font-weight:800;color:'+(bpp>tpp?'var(--red)':'var(--green)')+'">'+(bpp>tpp?'\\u26a0\\ufe0f Spending LEBIH CEPAT!':'\\u2705 Spending seimbang')+'</div></div>';}
+if(S.tab==='log'){h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:16px;font-weight:800;color:var(--muted)">\\ud83d\\udcdd '+p.expenses.length+' TRANSAKSI</div><div style="font-family:var(--mono);font-size:17px;font-weight:900;color:var(--amber)">Total: '+rp(s.tot)+'</div></div>';
+p.expenses.slice().reverse().forEach(function(e){h+='<div class="log"><div style="flex:1;min-width:0"><div class="log-title">'+esc(e.detail||e.category)+'</div><div class="log-sub">'+sd(e.date)+' \\u00b7 '+esc(CS[e.category])+' \\u00b7 '+e.qty+'\\u00d7'+rp(e.price)+(e.user?' \\u00b7 \\ud83d\\udc64'+esc(e.user):'')+'</div></div><div class="log-amt">'+rp(e.total)+'</div>'+(S.isAdmin?'<button class="del" onclick="confirmDel(\'expense\',\''+e.id+'\',\''+esc(e.detail||e.category)+'\')">\\ud83d\\uddd1</button>':'')+'</div>';});}
+if(S.tab==='notes'){h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:16px;font-weight:800;color:var(--muted)">\\ud83d\\udccc CATATAN PRIBADI</div><div style="font-size:14px;color:var(--dim);font-weight:700">Hanya Anda</div></div><div style="display:flex;gap:10px;margin-bottom:14px"><input type="text" id="ni" placeholder="Tulis catatan..." value="'+esc(S.noteInput)+'" oninput="S.noteInput=this.value" onkeydown="if(event.key===\'Enter\')addNote();" style="flex:1;border-radius:12px;padding:14px;font-size:17px;font-weight:700;border:2px solid var(--border);background:var(--cardb);color:var(--white);outline:none" /><button class="btn btn-amber" style="width:auto;padding:14px 24px" onclick="addNote()">+</button></div>';
+if(!S.myNotes.length)h+='<div style="text-align:center;padding:48px 0;color:var(--dim);font-size:16px;font-weight:700">Belum ada catatan</div>';
+S.myNotes.forEach(function(n){h+='<div class="log" style="margin-bottom:8px"><div style="flex:1"><div style="font-size:16px;font-weight:700;line-height:1.4;color:var(--white)">'+esc(n.text)+'</div><div class="log-sub">'+sd(n.date)+' '+n.time+'</div></div><button class="del" onclick="delNote(\''+n.id+'\')">\\ud83d\\uddd1</button></div>';});}
+h+='</div></div>';
+h+='<div class="nav">';[{id:'budget',i:'\\ud83d\\udcb0',l:'Budget',b:0},{id:'tasks',i:'\\ud83d\\udccb',l:'Tugas',b:ts.od.length},{id:'chart',i:'\\ud83d\\udcca',l:'Grafik',b:0},{id:'log',i:'\\ud83d\\udcdd',l:'Log',b:0},{id:'notes',i:'\\ud83d\\udccc',l:'Pribadi',b:0}].forEach(function(n){h+='<button class="nav-btn '+(S.tab===n.id?'on':'')+'" onclick="setTab(\''+n.id+'\')">'+(n.b>0?'<span class="nav-badge">'+n.b+'</span>':'')+'<span class="nav-icon">'+n.i+'</span><span class="nav-lbl">'+n.l+'</span></button>';});h+='</div>';
+if(S.modal==='exp'&&S.expForm){var f=S.expForm,fp=cp(f.category),pr=fp||Number(f.price)||0,tl=pr*(Number(f.qty)||1);h+='<div class="ov" onclick="closeModal()"><div class="ov-bg"></div><div class="modal" onclick="event.stopPropagation()"><div class="modal-hdr"><span class="modal-title">Tambah Pengeluaran</span><button class="modal-x" onclick="closeModal()">\\u2715</button></div><div class="modal-body"><div class="field"><label>TANGGAL</label><input type="date" value="'+f.date+'" onchange="S.expForm.date=this.value" /></div><div class="field"><label>KATEGORI</label><select onchange="S.expForm.category=this.value;S.expForm.price=String(cp(this.value));render();">'+CATEGORIES.map(function(c){return'<option value="'+esc(c.name)+'" '+(c.name===f.category?'selected':'')+'>'+esc(c.name)+'</option>';}).join('')+'</select></div><div class="field"><label>DETAIL</label><input type="text" placeholder="Misal: Makan siang" value="'+esc(f.detail)+'" oninput="S.expForm.detail=this.value" /></div><div class="grid2"><div class="field"><label>QTY</label><input type="number" min="1" value="'+f.qty+'" oninput="S.expForm.qty=this.value;render();" style="text-align:center" /></div><div class="field"><label>HARGA</label><input type="number" value="'+(fp||f.price)+'" '+(fp?'disabled':'')+' oninput="S.expForm.price=this.value;render();" style="text-align:center" /></div></div><div class="total-box"><div class="total-lbl">TOTAL</div><div class="total-val">'+rp(tl)+'</div></div><button class="btn btn-green" onclick="saveExpense()">\\u2713 SIMPAN</button></div></div></div>';}
+if(S.modal==='task'&&S.taskForm){var f2=S.taskForm;h+='<div class="ov" onclick="closeModal()"><div class="ov-bg"></div><div class="modal" onclick="event.stopPropagation()"><div class="modal-hdr"><span class="modal-title">Tambah Tugas</span><button class="modal-x" onclick="closeModal()">\\u2715</button></div><div class="modal-body"><div class="field"><label>TUGAS</label><input type="text" placeholder="Misal: Soil Test Titik 3" value="'+esc(f2.task)+'" oninput="S.taskForm.task=this.value" /></div><div class="grid2"><div class="field"><label>LOKASI</label><select onchange="S.taskForm.location=this.value">'+LOCS.map(function(l){return'<option '+(l===f2.location?'selected':'')+'>'+l+'</option>';}).join('')+'</select></div><div class="field"><label>PIC</label><input type="text" placeholder="Nama" value="'+esc(f2.pic)+'" oninput="S.taskForm.pic=this.value" /></div></div><div class="field"><label>DEADLINE</label><input type="date" value="'+f2.deadline+'" onchange="S.taskForm.deadline=this.value" /></div><div class="field"><label>CATATAN</label><input type="text" placeholder="Opsional" value="'+esc(f2.notes)+'" oninput="S.taskForm.notes=this.value" /></div><button class="btn btn-blue" onclick="if(S.taskForm.task&&S.taskForm.pic)saveTask();">\\u2713 SIMPAN</button></div></div></div>';}
+if(S.modal==='del'&&S.delTarget){var dt=S.delTarget;h+='<div class="ov" onclick="closeModal()"><div class="ov-bg"></div><div class="modal" onclick="event.stopPropagation()"><div class="modal-hdr"><span class="modal-title">Hapus?</span><button class="modal-x" onclick="closeModal()">\\u2715</button></div><div class="modal-body" style="text-align:center"><div style="font-size:48px;margin-bottom:14px">\\ud83d\\uddd1\\ufe0f</div><div style="font-size:18px;font-weight:700;color:var(--white)">Hapus <strong>'+esc(dt.name)+'</strong>?</div><div style="font-size:16px;color:var(--dim);margin-top:6px;font-weight:700">Dihapus untuk SEMUA user.</div><div class="grid2" style="margin-top:16px"><button class="btn btn-outline" onclick="closeModal()">Batal</button><button class="btn btn-red" onclick="doDel()">Ya, Hapus</button></div></div></div></div>';}
+if(S.modal==='set'&&S.isAdmin){h+='<div class="ov" onclick="closeModal()"><div class="ov-bg"></div><div class="modal" onclick="event.stopPropagation()"><div class="modal-hdr"><span class="modal-title">\\u2699 Pengaturan</span><button class="modal-x" onclick="closeModal()">\\u2715</button></div><div class="modal-body"><div style="font-size:15px;font-weight:800;color:var(--green);letter-spacing:1px">\\ud83d\\udd17 '+esc(p.name)+'</div><div class="field"><label>MASTER BUDGET (Rp)</label><input type="number" value="'+c.masterBudget+'" onchange="saveConfig(\'masterBudget\',Number(this.value))" /></div><div class="field"><label>CADANGAN (Rp)</label><input type="number" value="'+c.cadangan+'" onchange="saveConfig(\'cadangan\',Number(this.value))" /></div><div class="field"><label>TARGET SELESAI</label><input type="date" value="'+c.targetFinish+'" onchange="saveConfig(\'targetFinish\',this.value)" /></div><div class="field"><label>MULAI PROYEK</label><input type="date" value="'+c.projectStart+'" onchange="saveConfig(\'projectStart\',this.value)" /></div><div style="border-top:2px solid var(--border);padding-top:16px">'+(S.confirmReset?'<div style="text-align:center;font-size:17px;font-weight:800;color:var(--red);margin-bottom:12px">\\u26a0\\ufe0f Reset data project ini?</div><div class="grid2"><button class="btn btn-outline" onclick="S.confirmReset=false;render();">Batal</button><button class="btn btn-red" onclick="doReset()">Ya, Reset</button></div>':'<button class="btn btn-outline" style="border-color:rgba(255,85,85,.3);color:var(--red)" onclick="S.confirmReset=true;render();">Reset Data Project Ini</button>')+'</div></div></div></div>';}
+document.getElementById('app').innerHTML=h;}
 cloudLoad();
 </script>
 </body>
